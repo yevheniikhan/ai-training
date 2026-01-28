@@ -3,1362 +3,584 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Training - Тренінг з використання ШІ</title>
+    <title>AI Training Workshop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --primary: #10b981;
-            --primary-dark: #059669;
-            --bg: #0f172a;
-            --bg-light: #1e293b;
-            --bg-card: #334155;
-            --text: #f1f5f9;
-            --text-muted: #94a3b8;
-            --border: #475569;
-            --success: #22c55e;
-            --warning: #f59e0b;
-            --error: #ef4444;
+            --primary: #6366f1;
+            --primary-light: #a5b4fc;
+            --bg: #f8fafc;
+            --white: #ffffff;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-400: #9ca3af;
+            --gray-600: #4b5563;
+            --gray-900: #111827;
+            --green: #10b981;
+            --red: #ef4444;
+            --radius: 12px;
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'Inter', sans-serif;
             background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
+            color: var(--gray-900);
             line-height: 1.6;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
         header {
+            background: var(--white);
+            padding: 32px 24px;
             text-align: center;
-            padding: 40px 20px;
-            background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg) 100%);
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid var(--gray-200);
         }
 
         header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            background: linear-gradient(90deg, var(--primary), #60a5fa);
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), #ec4899);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        header p {
-            color: var(--text-muted);
-            font-size: 1.1rem;
+        header p { color: var(--gray-600); margin-top: 4px; }
+
+        .badge {
+            display: inline-block;
+            background: var(--gray-100);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--gray-600);
+            margin-top: 12px;
         }
 
-        /* API Key Section */
-        .api-section {
-            background: var(--bg-light);
-            padding: 30px;
-            border-radius: 16px;
-            margin: 30px auto;
-            max-width: 600px;
-            border: 1px solid var(--border);
+        .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+        /* API Section */
+        .api-box {
+            background: var(--white);
+            max-width: 440px;
+            margin: 0 auto 32px;
+            padding: 32px;
+            border-radius: var(--radius);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
 
-        .api-section h2 {
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .api-box h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; }
+        .api-box > p { color: var(--gray-600); font-size: 0.9rem; margin-bottom: 16px; }
+        .api-box a { color: var(--primary); }
 
-        .api-section input {
+        input, textarea {
             width: 100%;
-            padding: 15px;
+            padding: 12px 14px;
+            border: 1px solid var(--gray-200);
             border-radius: 8px;
-            border: 1px solid var(--border);
-            background: var(--bg);
-            color: var(--text);
-            font-size: 1rem;
-            margin-bottom: 15px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            background: var(--gray-50);
         }
 
-        .api-section input:focus {
+        input:focus, textarea:focus {
             outline: none;
             border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
         }
 
         .btn {
-            padding: 12px 24px;
+            padding: 12px 20px;
             border-radius: 8px;
             border: none;
+            font-weight: 500;
             cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: all 0.3s;
+            font-family: inherit;
+            transition: all 0.15s;
         }
 
-        .btn-primary {
-            background: var(--primary);
-            color: white;
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: #4f46e5; }
+        .btn-secondary { background: var(--gray-100); color: var(--gray-900); }
+        .btn-secondary:hover { background: var(--gray-200); }
+
+        #apiStatus { margin-top: 12px; font-size: 0.9rem; }
+
+        /* Progress */
+        .progress-box {
+            background: var(--white);
+            padding: 16px 20px;
+            border-radius: var(--radius);
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
 
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-        }
+        .progress-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; }
+        .progress-bar { height: 6px; background: var(--gray-200); border-radius: 3px; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), #ec4899); border-radius: 3px; transition: width 0.3s; }
 
-        .btn-secondary {
-            background: var(--bg-card);
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
+        /* Tasks */
+        .tasks { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
 
-        .btn-secondary:hover {
-            background: var(--border);
-        }
-
-        /* Progress Bar */
-        .progress-container {
-            background: var(--bg-light);
-            padding: 20px 30px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            border: 1px solid var(--border);
-        }
-
-        .progress-bar {
-            height: 12px;
-            background: var(--bg);
-            border-radius: 6px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary), #60a5fa);
-            border-radius: 6px;
-            transition: width 0.5s ease;
-            width: 0%;
-        }
-
-        .progress-text {
-            display: flex;
-            justify-content: space-between;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        /* Tasks Grid */
-        .tasks-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .task-card {
-            background: var(--bg-light);
-            border-radius: 12px;
+        .task {
+            background: var(--white);
             padding: 20px;
-            border: 1px solid var(--border);
+            border-radius: var(--radius);
             cursor: pointer;
-            transition: all 0.3s;
+            border: 1px solid var(--gray-200);
+            transition: all 0.2s;
             position: relative;
         }
 
-        .task-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--primary);
-            box-shadow: 0 10px 40px rgba(16, 185, 129, 0.1);
+        .task:hover { border-color: var(--primary-light); box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+        .task.done { border-color: var(--green); }
+        .task.done::after {
+            content: '✓'; position: absolute; top: 12px; right: 12px;
+            background: var(--green); color: white; width: 22px; height: 22px;
+            border-radius: 50%; font-size: 12px; display: flex; align-items: center; justify-content: center;
         }
 
-        .task-card.completed {
-            border-color: var(--success);
+        .task-num {
+            background: linear-gradient(135deg, var(--primary), #ec4899);
+            color: white; padding: 3px 10px; border-radius: 6px;
+            font-size: 0.75rem; font-weight: 600; display: inline-block; margin-bottom: 10px;
         }
 
-        .task-card.completed::after {
-            content: '✓';
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: var(--success);
-            color: white;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-        }
-
-        .task-card.locked {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .task-number {
-            display: inline-block;
-            background: var(--primary);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            margin-bottom: 12px;
-        }
-
-        .task-card h3 {
-            margin-bottom: 8px;
-            font-size: 1.1rem;
-        }
-
-        .task-card p {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        .task-category {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            margin-top: 10px;
-            background: var(--bg);
-        }
+        .task h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
+        .task p { font-size: 0.85rem; color: var(--gray-600); }
+        .task-cat { font-size: 0.7rem; color: var(--gray-400); margin-top: 10px; display: inline-block; background: var(--gray-100); padding: 3px 8px; border-radius: 4px; }
 
         /* Modal */
         .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            overflow-y: auto;
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.3); backdrop-filter: blur(4px);
+            z-index: 1000; overflow-y: auto;
         }
 
-        .modal.active {
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            padding: 40px 20px;
-        }
+        .modal.active { display: flex; align-items: flex-start; justify-content: center; padding: 40px 16px; }
 
-        .modal-content {
-            background: var(--bg-light);
+        .modal-box {
+            background: var(--white);
+            width: 100%; max-width: 750px;
             border-radius: 16px;
-            width: 100%;
-            max-width: 900px;
-            border: 1px solid var(--border);
-            animation: modalIn 0.3s ease;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            animation: slideIn 0.25s ease;
         }
 
-        @keyframes modalIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+
+        .modal-head {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex; justify-content: space-between; align-items: center;
         }
 
-        .modal-header {
-            padding: 25px 30px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-header h2 {
-            font-size: 1.4rem;
-        }
+        .modal-head h2 { font-size: 1.1rem; font-weight: 600; }
 
         .close-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 1.8rem;
-            cursor: pointer;
-            transition: color 0.3s;
+            width: 32px; height: 32px; border-radius: 8px;
+            background: var(--gray-100); border: none; cursor: pointer;
+            font-size: 1.2rem; color: var(--gray-600);
         }
 
-        .close-btn:hover {
-            color: var(--text);
+        .close-btn:hover { background: var(--gray-200); }
+
+        .modal-body { padding: 24px; }
+
+        .info-box {
+            background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(236,72,153,0.05));
+            padding: 16px; border-radius: 10px; margin-bottom: 16px;
+            border: 1px solid rgba(99,102,241,0.2);
         }
 
-        .modal-body {
-            padding: 30px;
-        }
+        .info-box h4 { font-size: 0.75rem; text-transform: uppercase; color: var(--primary); margin-bottom: 6px; font-weight: 600; }
 
-        .task-description {
-            background: var(--bg);
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid var(--primary);
-        }
+        .tip-box { background: var(--gray-50); padding: 14px; border-radius: 10px; margin-bottom: 16px; }
+        .tip-box h4 { font-size: 0.8rem; color: var(--gray-600); margin-bottom: 6px; }
+        .tip-box p { font-size: 0.9rem; }
 
-        .task-description h4 {
-            margin-bottom: 10px;
-            color: var(--primary);
+        .examples { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+        .example {
+            background: var(--white); border: 1px solid var(--gray-200);
+            padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer;
         }
+        .example:hover { border-color: var(--primary); color: var(--primary); }
 
-        .chat-container {
-            background: var(--bg);
-            border-radius: 12px;
-            min-height: 300px;
-            max-height: 500px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            border: 1px solid var(--border);
-            margin-top: 20px;
-        }
+        /* Chat */
+        .chat-label { font-size: 0.85rem; font-weight: 600; margin-bottom: 10px; color: var(--gray-900); }
 
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-        }
-
-        .message {
-            margin-bottom: 15px;
-            animation: messageIn 0.3s ease;
-        }
-
-        @keyframes messageIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .message.user {
-            text-align: right;
-        }
-
-        .message-content {
-            display: inline-block;
-            padding: 12px 18px;
-            border-radius: 12px;
-            max-width: 85%;
-            text-align: left;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-        }
-
-        .message.user .message-content {
-            background: var(--primary);
-            color: white;
-        }
-
-        .message.assistant .message-content {
-            background: var(--bg-card);
-            max-width: 100%;
-        }
-
-        .message.system .message-content {
-            background: var(--warning);
-            color: var(--bg);
-            font-size: 0.9rem;
-        }
-
-        .chat-input-container {
-            padding: 15px;
-            border-top: 1px solid var(--border);
-            display: flex;
-            gap: 10px;
-        }
-
-        .chat-input {
-            flex: 1;
-            padding: 12px 15px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background: var(--bg-light);
-            color: var(--text);
-            font-size: 1rem;
-            resize: none;
-        }
-
-        .chat-input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        /* Code Execution Area */
-        .code-output {
-            background: #1a1a2e;
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 15px;
-            font-family: 'Consolas', monospace;
-            overflow-x: auto;
-        }
-
-        .code-output pre {
-            margin: 0;
-            white-space: pre-wrap;
-        }
-
-        /* Visualization Area */
-        .visualization-area {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 15px;
-            min-height: 200px;
-        }
-
-        /* Deep Search Visualization */
-        .search-viz {
-            background: var(--bg);
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 15px;
-        }
-
-        .search-node {
-            background: var(--bg-card);
-            padding: 15px;
-            border-radius: 8px;
-            margin: 10px 0;
-            border-left: 3px solid var(--primary);
-            animation: nodeExpand 0.5s ease;
-        }
-
-        @keyframes nodeExpand {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .search-node.processing {
-            border-left-color: var(--warning);
-        }
-
-        .search-node.complete {
-            border-left-color: var(--success);
-        }
-
-        .thinking-dots {
-            display: inline-flex;
-            gap: 4px;
-        }
-
-        .thinking-dots span {
-            width: 8px;
-            height: 8px;
-            background: var(--primary);
-            border-radius: 50%;
-            animation: bounce 1.4s infinite both;
-        }
-
-        .thinking-dots span:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .thinking-dots span:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        @keyframes bounce {
-            0%, 80%, 100% {
-                transform: scale(0);
-            }
-            40% {
-                transform: scale(1);
-            }
-        }
-
-        /* Chain of Thought */
-        .cot-container {
-            background: var(--bg);
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 15px;
-        }
-
-        .cot-step {
-            display: flex;
-            align-items: flex-start;
-            gap: 15px;
-            margin-bottom: 15px;
-            padding: 15px;
-            background: var(--bg-card);
-            border-radius: 8px;
-        }
-
-        .cot-number {
-            background: var(--primary);
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            flex-shrink: 0;
-        }
-
-        /* Hallucination Demo */
-        .hallucination-demo {
-            background: var(--bg);
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 15px;
-        }
-
-        .fact-check {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 15px;
-            background: var(--bg-card);
-            border-radius: 8px;
-            margin: 10px 0;
-        }
-
-        .fact-check.verified {
-            border-left: 3px solid var(--success);
-        }
-
-        .fact-check.unverified {
-            border-left: 3px solid var(--error);
-        }
-
-        /* Tips */
-        .tip-box {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid var(--primary);
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 15px;
-            margin-bottom: 0;
+        .chat {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 10px;
             overflow: hidden;
         }
 
-        .tip-box h4 {
-            color: var(--primary);
-            margin-bottom: 8px;
+        .messages { height: 280px; overflow-y: auto; padding: 16px; }
+
+        .msg { margin-bottom: 12px; }
+        .msg.user { text-align: right; }
+
+        .msg-content {
+            display: inline-block; padding: 10px 14px; border-radius: 10px;
+            max-width: 85%; text-align: left; font-size: 0.9rem;
         }
 
-        /* Hidden */
-        .hidden {
-            display: none !important;
+        .msg.user .msg-content { background: var(--primary); color: white; border-bottom-right-radius: 4px; }
+        .msg.ai .msg-content { background: var(--white); border: 1px solid var(--gray-200); border-bottom-left-radius: 4px; }
+        .msg.sys .msg-content { background: transparent; color: var(--gray-400); font-size: 0.85rem; text-align: center; width: 100%; }
+
+        .chat-input { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--gray-200); background: var(--white); }
+        .chat-input textarea { flex: 1; resize: none; }
+
+        /* Output areas */
+        .output-section { margin-top: 20px; }
+        .output-section h4 { font-size: 0.85rem; font-weight: 600; margin-bottom: 10px; }
+
+        .code-box {
+            background: #1e1e1e; color: #d4d4d4;
+            padding: 16px; border-radius: 10px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.85rem; overflow-x: auto;
         }
 
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: 30px;
-            color: var(--text-muted);
-            border-top: 1px solid var(--border);
-            margin-top: 50px;
+        .code-box pre { margin: 0; white-space: pre-wrap; }
+
+        .result-box {
+            margin-top: 12px; padding: 14px; background: var(--gray-50);
+            border-radius: 10px; border-left: 4px solid var(--green);
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 1.8rem;
-            }
+        .result-box h5 { font-size: 0.8rem; color: var(--green); margin-bottom: 6px; }
 
-            .tasks-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .modal-content {
-                margin: 10px;
-            }
+        .chart-box {
+            background: var(--white); border: 1px solid var(--gray-200);
+            border-radius: 10px; padding: 20px; margin-top: 20px;
         }
 
-        /* Canvas for charts */
-        canvas {
-            max-width: 100%;
+        .search-step {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 14px; background: var(--white);
+            border: 1px solid var(--gray-200); border-radius: 8px;
+            margin-bottom: 6px; font-size: 0.9rem;
         }
 
-        .example-prompts {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 10px;
-        }
+        .search-step.done { border-color: var(--green); background: rgba(16,185,129,0.05); }
+        .step-icon { width: 20px; height: 20px; border-radius: 50%; background: var(--green); color: white; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; }
 
-        .example-prompt {
-            background: var(--bg-card);
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.2s;
+        .warning-box {
+            background: rgba(239,68,68,0.1); border: 1px solid var(--red);
+            border-radius: 10px; padding: 14px; margin-top: 20px;
         }
+        .warning-box h4 { color: var(--red); font-size: 0.85rem; margin-bottom: 4px; }
+        .warning-box p { font-size: 0.85rem; color: var(--gray-600); }
 
-        .example-prompt:hover {
-            background: var(--primary);
-            color: white;
-        }
+        .actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--gray-200); }
 
-        .grammar-result {
-            background: var(--bg);
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-        }
+        .dots { display: inline-flex; gap: 4px; }
+        .dots span { width: 6px; height: 6px; background: var(--primary); border-radius: 50%; animation: pulse 1.2s infinite; }
+        .dots span:nth-child(2) { animation-delay: 0.2s; }
+        .dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes pulse { 0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
 
-        .grammar-result .original {
-            color: var(--error);
-            text-decoration: line-through;
-        }
+        .hidden { display: none !important; }
 
-        .grammar-result .corrected {
-            color: var(--success);
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--border);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
+        .msg-content pre { background: #f1f5f9; padding: 10px; border-radius: 6px; overflow-x: auto; margin: 8px 0; }
+        .msg-content code { background: rgba(0,0,0,0.06); padding: 2px 5px; border-radius: 4px; font-family: monospace; font-size: 0.85em; }
     </style>
 </head>
 <body>
     <header>
-        <h1>🌲 AI Training Workshop</h1>
+        <h1>AI Training Workshop</h1>
         <p>Інтерактивний тренінг з використання штучного інтелекту</p>
-        <p style="margin-top: 10px; font-size: 0.9rem;">Для фахівців лісового господарства, освіти, науки та законодавства ЄС</p>
+        <div class="badge">Для фахівців лісового господарства, освіти, науки та законодавства ЄС</div>
     </header>
 
     <div class="container">
-        <!-- API Key Section -->
-        <section class="api-section" id="apiSection">
-            <h2>🔑 Налаштування API</h2>
-            <p style="color: var(--text-muted); margin-bottom: 15px;">
-                Введіть ваш Google Gemini API ключ для початку роботи.
-                <a href="https://aistudio.google.com/apikey" target="_blank" style="color: var(--primary);">Отримати ключ →</a>
-            </p>
-            <input type="password" id="apiKey" placeholder="Введіть ваш Gemini API ключ...">
-            <button class="btn btn-primary" onclick="saveApiKey()">Зберегти та почати</button>
-            <p id="apiStatus" style="margin-top: 10px; font-size: 0.9rem;"></p>
-        </section>
+        <div class="api-box" id="apiSection">
+            <h2>Налаштування API</h2>
+            <p>Введіть Google Gemini API ключ. <a href="https://aistudio.google.com/apikey" target="_blank">Отримати →</a></p>
+            <input type="password" id="apiKey" placeholder="API ключ...">
+            <button class="btn btn-primary" onclick="saveKey()" style="width:100%;margin-top:12px">Почати</button>
+            <div id="apiStatus"></div>
+        </div>
 
-        <!-- Progress Section (hidden initially) -->
-        <section class="progress-container hidden" id="progressSection">
-            <div class="progress-text">
-                <span>Ваш прогрес</span>
-                <span id="progressCount">0 / 20 завдань</span>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
-        </section>
+        <div class="progress-box hidden" id="progressBox">
+            <div class="progress-header"><span>Прогрес</span><span id="progressText">0/20</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
 
-        <!-- Tasks Grid (hidden initially) -->
-        <section class="tasks-grid hidden" id="tasksGrid">
-            <!-- Tasks will be generated by JavaScript -->
-        </section>
+        <div class="tasks hidden" id="tasksGrid"></div>
     </div>
 
-    <!-- Task Modal -->
-    <div class="modal" id="taskModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTitle">Завдання</h2>
-                <button class="close-btn" onclick="closeModal()">&times;</button>
+    <div class="modal" id="modal">
+        <div class="modal-box">
+            <div class="modal-head">
+                <h2 id="modalTitle"></h2>
+                <button class="close-btn" onclick="closeModal()">×</button>
             </div>
-            <div class="modal-body" id="modalBody">
-                <!-- Dynamic content -->
-            </div>
+            <div class="modal-body" id="modalBody"></div>
         </div>
     </div>
 
-    <footer>
-        <p>AI Training Workshop 2025 | Створено для інтерактивного навчання</p>
-    </footer>
-
     <script>
-        // Tasks Data
-        const tasks = [
-            {
-                id: 1,
-                title: "Базовий промт",
-                description: "Навчіться створювати ефективні запити до ШІ",
-                category: "Промт інжиніринг",
-                task: "Напишіть запит до ШІ, щоб отримати список 5 найважливіших порід дерев для лісового господарства України з коротким описом кожної.",
-                hint: "Будьте конкретними: вкажіть кількість, контекст (Україна) та що саме хочете дізнатись.",
-                examples: ["Опиши 5 порід дерев", "Які дерева ростуть в Україні?", "Список лісових порід з описом"]
-            },
-            {
-                id: 2,
-                title: "Роль та контекст",
-                description: "Як задати роль ШІ для кращих відповідей",
-                category: "Промт інжиніринг",
-                task: "Попросіть ШІ виступити в ролі експерта з лісового законодавства ЄС і пояснити основні вимоги регламенту EUDR (EU Deforestation Regulation).",
-                hint: "Почніть з 'Ти - експерт...' або 'Виступи в ролі...'",
-                examples: ["Ти експерт з EUDR...", "Як спеціаліст поясни...", "В ролі юриста розкажи..."]
-            },
-            {
-                id: 3,
-                title: "Ланцюжок думок (CoT)",
-                description: "Розуміння покрокового мислення ШІ",
-                category: "Chain of Thought",
-                task: "Попросіть ШІ покроково розрахувати, скільки CO2 поглинає ліс площею 100 га за рік. Попросіть показати всі кроки розрахунку.",
-                hint: "Використовуйте фрази: 'покроково', 'поясни свої міркування', 'покажи хід думок'",
-                examples: ["Розрахуй покроково...", "Поясни кожен крок...", "Покажи хід міркувань..."],
-                showCoT: true
-            },
-            {
-                id: 4,
-                title: "Few-shot навчання",
-                description: "Навчання на прикладах",
-                category: "Промт інжиніринг",
-                task: "Дайте ШІ 2-3 приклади класифікації документів (наприклад: 'Наказ про рубку' → 'Дозвільний документ') і попросіть класифікувати новий документ.",
-                hint: "Формат: 'Ось приклади: ... Тепер класифікуй: ...'",
-                examples: ["Приклад 1: X → Y. Приклад 2: A → B. Класифікуй: Z"]
-            },
-            {
-                id: 5,
-                title: "Генерація коду",
-                description: "Створення та виконання коду",
-                category: "Код",
-                task: "Попросіть ШІ написати JavaScript код для розрахунку об'єму деревини циліндричної колоди (формула: π × r² × h). Код виконається автоматично.",
-                hint: "Вкажіть мову програмування та що код має робити",
-                examples: ["Напиши JavaScript функцію...", "Створи код для розрахунку..."],
-                executeCode: true
-            },
-            {
-                id: 6,
-                title: "Візуалізація даних",
-                description: "Створення графіків та діаграм",
-                category: "Візуалізація",
-                task: "Попросіть ШІ створити дані та JavaScript код для побудови стовпчикової діаграми вирубки лісів в Україні за останні 5 років.",
-                hint: "Вкажіть тип графіка та дані, які хочете візуалізувати",
-                examples: ["Побудуй графік...", "Створи діаграму...", "Візуалізуй дані..."],
-                showChart: true
-            },
-            {
-                id: 7,
-                title: "Перевірка граматики",
-                description: "Редагування та вичитка текстів",
-                category: "Текст",
-                task: "Введіть текст з помилками (наприклад, офіційний лист чи звіт) і попросіть ШІ виправити граматичні та стилістичні помилки.",
-                hint: "Попросіть не тільки виправити, а й пояснити помилки",
-                examples: ["Виправ помилки в тексті: ...", "Відредагуй офіційно: ..."],
-                showGrammar: true
-            },
-            {
-                id: 8,
-                title: "Глибокий пошук",
-                description: "Візуалізація процесу пошуку інформації",
-                category: "Deep Search",
-                task: "Попросіть ШІ провести глибокий аналіз теми 'Вплив зміни клімату на ліси Карпат'. Спостерігайте за процесом пошуку.",
-                hint: "Використовуйте складні, багатоаспектні питання",
-                examples: ["Проведи глибокий аналіз...", "Дослідж всебічно..."],
-                showDeepSearch: true
-            },
-            {
-                id: 9,
-                title: "Галюцинації ШІ",
-                description: "Розуміння помилок та вигадок ШІ",
-                category: "Критичне мислення",
-                task: "Запитайте ШІ про вигадану подію або неіснуючий закон. Наприклад: 'Розкажи про Закон України про ліси 2027 року'. Проаналізуйте відповідь.",
-                hint: "ШІ може впевнено відповідати на питання про неіснуючі речі - це галюцинація",
-                examples: ["Розкажи про закон X 2027...", "Хто автор неіснуючої книги?"],
-                showHallucination: true
-            },
-            {
-                id: 10,
-                title: "Структурований вивід",
-                description: "Отримання даних у форматі JSON/таблиці",
-                category: "Формати",
-                task: "Попросіть ШІ надати інформацію про 5 національних парків України у форматі JSON з полями: назва, площа, рік створення.",
-                hint: "Вкажіть точний формат: JSON, таблиця, список",
-                examples: ["Надай у форматі JSON...", "Створи таблицю з полями..."]
-            },
-            {
-                id: 11,
-                title: "Сумаризація",
-                description: "Стиснення великих текстів",
-                category: "Текст",
-                task: "Вставте довгий текст (наприклад, статтю про ліси) і попросіть ШІ створити короткий підсумок у 3-5 реченнях.",
-                hint: "Вкажіть бажану довжину та ключові аспекти для збереження",
-                examples: ["Підсумуй у 3 реченнях...", "Виділи головне..."]
-            },
-            {
-                id: 12,
-                title: "Переклад з контекстом",
-                description: "Професійний переклад термінів",
-                category: "Текст",
-                task: "Попросіть ШІ перекласти фаховий текст про лісове господарство з англійської, зберігаючи професійну термінологію.",
-                hint: "Вкажіть галузь та вимоги до термінології",
-                examples: ["Переклади збергіаючи терміни лісівництва..."]
-            },
-            {
-                id: 13,
-                title: "Аналіз документів",
-                description: "Витягування інформації з тексту",
-                category: "Аналіз",
-                task: "Надайте ШІ текст договору або наказу і попросіть витягти ключову інформацію: дати, суми, сторони, зобов'язання.",
-                hint: "Попросіть структурувати витягнуту інформацію",
-                examples: ["Витягни з договору: дати, суми...", "Проаналізуй документ..."]
-            },
-            {
-                id: 14,
-                title: "Порівняльний аналіз",
-                description: "Порівняння концепцій та варіантів",
-                category: "Аналіз",
-                task: "Попросіть ШІ порівняти два підходи до відновлення лісів: природне відновлення vs штучне лісорозведення.",
-                hint: "Попросіть створити таблицю порівняння з критеріями",
-                examples: ["Порівняй X та Y за критеріями...", "Що краще: A чи B?"]
-            },
-            {
-                id: 15,
-                title: "Створення тестів",
-                description: "Генерація навчальних матеріалів",
-                category: "Освіта",
-                task: "Попросіть ШІ створити тест з 5 питань (з варіантами відповідей) на тему 'Охорона лісів в Україні'.",
-                hint: "Вкажіть кількість питань, тип (вибір/відкриті) та рівень складності",
-                examples: ["Створи тест з 5 питань...", "Згенеруй квіз..."]
-            },
-            {
-                id: 16,
-                title: "Написання листів",
-                description: "Офіційна кореспонденція",
-                category: "Текст",
-                task: "Попросіть ШІ написати офіційний лист до органу місцевого самоврядування щодо незаконної вирубки лісу.",
-                hint: "Вкажіть тон (офіційний), адресата та мету листа",
-                examples: ["Напиши офіційний лист до...", "Склади звернення..."]
-            },
-            {
-                id: 17,
-                title: "Мозковий штурм",
-                description: "Генерація ідей",
-                category: "Креативність",
-                task: "Попросіть ШІ згенерувати 10 ідей для екологічної освіти школярів про важливість лісів.",
-                hint: "Попросіть незвичайні, креативні ідеї",
-                examples: ["Згенеруй 10 ідей...", "Запропонуй креативні способи..."]
-            },
-            {
-                id: 18,
-                title: "Обмеження токенів",
-                description: "Контроль довжини відповіді",
-                category: "Промт інжиніринг",
-                task: "Попросіть ШІ пояснити фотосинтез максимум у 50 словах. Потім - у 200 словах. Порівняйте.",
-                hint: "Експериментуйте з обмеженнями: 'у X словах', 'одним реченням'",
-                examples: ["Поясни у 50 словах...", "Опиши одним абзацом..."]
-            },
-            {
-                id: 19,
-                title: "Негативні промти",
-                description: "Вказівки чого НЕ робити",
-                category: "Промт інжиніринг",
-                task: "Попросіть ШІ написати статтю про ліси, вказавши що НЕ включати: не використовуй складні терміни, не згадуй політику, не пиши більше 100 слів.",
-                hint: "Комбінуйте позитивні та негативні інструкції",
-                examples: ["Напиши про X, але НЕ згадуй Y...", "Без використання Z..."]
-            },
-            {
-                id: 20,
-                title: "Комплексний проект",
-                description: "Поєднання всіх навичок",
-                category: "Фінал",
-                task: "Створіть комплексний запит: попросіть ШІ в ролі експерта з лісового господарства проаналізувати проблему, запропонувати рішення у структурованому форматі та створити план дій.",
-                hint: "Поєднайте: роль + контекст + структура + обмеження",
-                examples: ["Як експерт проаналізуй покроково і надай план у форматі..."]
-            }
+        const TASKS = [
+            { id: 1, title: "Базовий промт", desc: "Ефективні запити до ШІ", cat: "Промт", task: "Напишіть запит для списку 5 порід дерев України з описом.", hint: "Будьте конкретними: кількість, контекст.", ex: ["Опиши 5 порід дерев України"] },
+            { id: 2, title: "Роль та контекст", desc: "Задайте роль ШІ", cat: "Промт", task: "Попросіть ШІ як експерта з EUDR пояснити вимоги регламенту.", hint: "Почніть: 'Ти експерт...'", ex: ["Ти експерт з EUDR, поясни..."] },
+            { id: 3, title: "Ланцюжок думок", desc: "Покрокове мислення", cat: "CoT", task: "Попросіть покроково розрахувати CO2 поглинання лісом 100 га.", hint: "Додайте: 'покроково', 'покажи міркування'", ex: ["Розрахуй покроково..."], cot: true },
+            { id: 4, title: "Few-shot", desc: "Навчання на прикладах", cat: "Промт", task: "Дайте 2 приклади класифікації документів і попросіть класифікувати новий.", hint: "Формат: Приклад: X→Y. Класифікуй: Z", ex: ["Приклад: Наказ→Дозвіл. Класифікуй:..."] },
+            { id: 5, title: "Генерація коду", desc: "Код що виконується", cat: "Код", task: "Попросіть JS код для об'єму циліндра (π×r²×h) з прикладом.", hint: "Вкажіть мову та приклад використання", ex: ["JS функція об'єму циліндра з прикладом"], code: true },
+            { id: 6, title: "Візуалізація", desc: "Графіки Chart.js", cat: "Візуалізація", task: "Попросіть створити графік вирубки лісів за 5 років.", hint: "Вкажіть тип: стовпчиковий, лінійний", ex: ["Стовпчиковий графік вирубки 2019-2023"], chart: true },
+            { id: 7, title: "Граматика", desc: "Перевірка текстів", cat: "Текст", task: "Введіть текст з помилками для виправлення.", hint: "Попросіть пояснити помилки", ex: ["Виправ помилки: Дерива ростуть в лісі"] },
+            { id: 8, title: "Глибокий аналіз", desc: "Комплексний пошук", cat: "Аналіз", task: "Попросіть проаналізувати вплив клімату на ліси Карпат.", hint: "Складні багатоаспектні питання", ex: ["Проаналізуй вплив клімату на Карпати"], search: true },
+            { id: 9, title: "Галюцинації", desc: "Вигадки ШІ", cat: "Критика", task: "Запитайте про вигаданий 'Закон про ліси 2027'.", hint: "ШІ може впевнено вигадувати", ex: ["Розкажи про Закон про ліси 2027"], hall: true },
+            { id: 10, title: "JSON вивід", desc: "Структуровані дані", cat: "Формати", task: "Попросіть дані про 5 нацпарків у JSON.", hint: "Вкажіть поля: назва, площа, рік", ex: ["5 нацпарків України у JSON"] },
+            { id: 11, title: "Сумаризація", desc: "Стиснення тексту", cat: "Текст", task: "Вставте текст і попросіть підсумок у 3 реченнях.", hint: "Вкажіть довжину підсумку", ex: ["Підсумуй у 3 реченнях: ..."] },
+            { id: 12, title: "Переклад", desc: "Фаховий переклад", cat: "Текст", task: "Перекладіть текст зберігаючи термінологію.", hint: "Вкажіть галузь", ex: ["Переклади зберігаючи терміни лісівництва"] },
+            { id: 13, title: "Аналіз документів", desc: "Витяг інформації", cat: "Аналіз", task: "Витягніть ключові дані з договору.", hint: "Структуруйте: дати, суми, сторони", ex: ["Витягни з договору: дати, суми..."] },
+            { id: 14, title: "Порівняння", desc: "Порівняльний аналіз", cat: "Аналіз", task: "Порівняйте природне vs штучне відновлення лісів.", hint: "Попросіть таблицю", ex: ["Порівняй у таблиці..."] },
+            { id: 15, title: "Тести", desc: "Генерація тестів", cat: "Освіта", task: "Створіть тест з 5 питань про охорону лісів.", hint: "Вкажіть тип питань", ex: ["Тест 5 питань про ліси з відповідями"] },
+            { id: 16, title: "Листи", desc: "Офіційна кореспонденція", cat: "Текст", task: "Напишіть лист щодо незаконної вирубки.", hint: "Вкажіть тон та адресата", ex: ["Офіційний лист про вирубку"] },
+            { id: 17, title: "Ідеї", desc: "Мозковий штурм", cat: "Креатив", task: "10 ідей екоосвіти для школярів.", hint: "Попросіть креативні ідеї", ex: ["10 креативних ідей екоосвіти"] },
+            { id: 18, title: "Обмеження", desc: "Контроль довжини", cat: "Промт", task: "Поясніть фотосинтез у 50 словах.", hint: "Експериментуйте: 50, 100, 200 слів", ex: ["Фотосинтез у 50 словах"] },
+            { id: 19, title: "Заборони", desc: "Чого НЕ робити", cat: "Промт", task: "Стаття про ліси БЕЗ термінів, до 100 слів.", hint: "Комбінуйте: напиши X, але НЕ Y", ex: ["Про ліси без термінів, до 100 слів"] },
+            { id: 20, title: "Фінал", desc: "Всі навички разом", cat: "Комплекс", task: "Як експерт: аналіз проблеми + рішення в JSON + план.", hint: "Роль + структура + обмеження", ex: ["Як експерт проаналізуй і дай план у JSON"] }
         ];
 
-        let apiKey = '';
-        let completedTasks = new Set();
+        let done = new Set(JSON.parse(localStorage.getItem('done') || '[]'));
 
-        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            const savedKey = localStorage.getItem('geminiApiKey');
-            const savedCompleted = localStorage.getItem('completedTasks');
-
-            if (savedKey) {
-                apiKey = savedKey;
-                document.getElementById('apiKey').value = savedKey;
-            }
-
-            if (savedCompleted) {
-                completedTasks = new Set(JSON.parse(savedCompleted));
-            }
-
+            const k = localStorage.getItem('apiKey');
+            if (k) document.getElementById('apiKey').value = k;
             renderTasks();
         });
 
-        function saveApiKey() {
-            const key = document.getElementById('apiKey').value.trim();
-            if (!key) {
-                showStatus('Введіть API ключ', 'error');
-                return;
-            }
-
-            apiKey = key;
-            localStorage.setItem('geminiApiKey', key);
-            showStatus('API ключ збережено! Перевіряю...', 'success');
-
-            // Test the API key
-            testApiKey(key);
+        function saveKey() {
+            const k = document.getElementById('apiKey').value.trim();
+            if (!k) return showStatus('Введіть ключ', 'red');
+            localStorage.setItem('apiKey', k);
+            showStatus('Перевіряю...', '#666');
+            testKey(k);
         }
 
-        async function testApiKey(key) {
-            try {
-                // Try multiple models for compatibility
-                const models = ['gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-1.5-flash-latest'];
-                let response = null;
-                let workingModel = null;
-
-                for (const model of models) {
-                    response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+        async function testKey(k) {
+            for (const m of ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-pro']) {
+                try {
+                    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${k}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: 'Hi' }] }]
-                        })
+                        body: JSON.stringify({ contents: [{ parts: [{ text: 'test' }] }] })
                     });
-                    if (response.ok) {
-                        workingModel = model;
-                        localStorage.setItem('geminiModel', model);
-                        break;
+                    if (r.ok) {
+                        localStorage.setItem('model', m);
+                        showStatus('Працює! ' + m, 'var(--green)');
+                        document.getElementById('apiSection').classList.add('hidden');
+                        document.getElementById('progressBox').classList.remove('hidden');
+                        document.getElementById('tasksGrid').classList.remove('hidden');
+                        updateProgress();
+                        return;
                     }
-                }
-
-                if (response && response.ok && workingModel) {
-                    showStatus(`✓ API ключ працює! Модель: ${workingModel}`, 'success');
-                    document.getElementById('apiSection').classList.add('hidden');
-                    document.getElementById('progressSection').classList.remove('hidden');
-                    document.getElementById('tasksGrid').classList.remove('hidden');
-                    updateProgress();
-                } else {
-                    const errorData = response ? await response.json().catch(() => ({})) : {};
-                    console.error('API Error:', errorData);
-                    showStatus('✗ Невірний API ключ. Перевірте та спробуйте знову.', 'error');
-                }
-            } catch (error) {
-                showStatus('✗ Помилка підключення. Перевірте інтернет.', 'error');
+                } catch (e) {}
             }
+            showStatus('Невірний ключ', 'var(--red)');
         }
 
-        function showStatus(message, type) {
-            const status = document.getElementById('apiStatus');
-            status.textContent = message;
-            status.style.color = type === 'error' ? 'var(--error)' : 'var(--success)';
+        function showStatus(t, c) {
+            const el = document.getElementById('apiStatus');
+            el.textContent = t;
+            el.style.color = c;
         }
 
         function renderTasks() {
-            const grid = document.getElementById('tasksGrid');
-            grid.innerHTML = tasks.map(task => `
-                <div class="task-card ${completedTasks.has(task.id) ? 'completed' : ''}" onclick="openTask(${task.id})">
-                    <span class="task-number">Завдання ${task.id}</span>
-                    <h3>${task.title}</h3>
-                    <p>${task.description}</p>
-                    <span class="task-category">${task.category}</span>
+            document.getElementById('tasksGrid').innerHTML = TASKS.map(t => `
+                <div class="task ${done.has(t.id) ? 'done' : ''}" onclick="openTask(${t.id})">
+                    <span class="task-num">${t.id}</span>
+                    <h3>${t.title}</h3>
+                    <p>${t.desc}</p>
+                    <span class="task-cat">${t.cat}</span>
                 </div>
             `).join('');
         }
 
         function updateProgress() {
-            const count = completedTasks.size;
-            document.getElementById('progressCount').textContent = `${count} / 20 завдань`;
-            document.getElementById('progressFill').style.width = `${(count / 20) * 100}%`;
+            document.getElementById('progressText').textContent = `${done.size}/20`;
+            document.getElementById('progressFill').style.width = `${done.size * 5}%`;
         }
 
-        function openTask(taskId) {
-            const task = tasks.find(t => t.id === taskId);
-            if (!task) return;
+        function openTask(id) {
+            const t = TASKS.find(x => x.id === id);
+            document.getElementById('modalTitle').textContent = `${t.id}. ${t.title}`;
 
-            document.getElementById('modalTitle').textContent = `Завдання ${task.id}: ${task.title}`;
-
-            let extraContent = '';
-
-            if (task.showCoT) {
-                extraContent = `<div class="cot-container" id="cotContainer"></div>`;
-            }
-            if (task.showChart) {
-                extraContent = `<div class="visualization-area" id="chartArea"><canvas id="myChart"></canvas></div>`;
-            }
-            if (task.showDeepSearch) {
-                extraContent = `<div class="search-viz" id="searchViz"></div>`;
-            }
-            if (task.showHallucination) {
-                extraContent = `<div class="hallucination-demo" id="hallucinationDemo"></div>`;
-            }
-            if (task.showGrammar) {
-                extraContent = `<div class="grammar-result" id="grammarResult"></div>`;
-            }
-            if (task.executeCode) {
-                extraContent = `<div class="code-output" id="codeOutput"><pre>// Результат виконання коду з'явиться тут</pre></div>`;
-            }
+            let extra = '';
+            if (t.code) extra = '<div class="output-section"><h4>Виконання коду</h4><div class="code-box" id="codeBox"><pre>// Код тут</pre></div><div class="result-box hidden" id="resultBox"><h5>Результат</h5><div id="resultContent"></div></div></div>';
+            if (t.chart) extra = '<div class="chart-box"><canvas id="chartCanvas"></canvas></div>';
+            if (t.search) extra = '<div class="output-section"><h4>Процес аналізу</h4><div id="searchBox"></div></div>';
+            if (t.cot) extra = '<div class="output-section"><h4>Ланцюжок думок</h4><div id="cotBox"></div></div>';
+            if (t.hall) extra = '<div id="hallBox"></div>';
 
             document.getElementById('modalBody').innerHTML = `
-                <div class="task-description">
-                    <h4>📋 Завдання</h4>
-                    <p>${task.task}</p>
+                <div class="info-box"><h4>Завдання</h4><p>${t.task}</p></div>
+                <div class="tip-box"><h4>Підказка</h4><p>${t.hint}</p>
+                    <div class="examples">${t.ex.map(e => `<span class="example" onclick="setInput('${e.replace(/'/g, "\\'")}')">${e}</span>`).join('')}</div>
                 </div>
-
-                <div class="tip-box">
-                    <h4>💡 Підказка</h4>
-                    <p>${task.hint}</p>
-                    <div class="example-prompts">
-                        ${task.examples.map(ex => `<span class="example-prompt" onclick="useExample('${ex.replace(/'/g, "\\'")}')">${ex}</span>`).join('')}
+                <div class="chat-label">Чат з ШІ</div>
+                <div class="chat">
+                    <div class="messages" id="msgs"><div class="msg sys"><div class="msg-content">Введіть запит</div></div></div>
+                    <div class="chat-input">
+                        <textarea id="input" rows="2" placeholder="Ваш запит..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send(${id})}"></textarea>
+                        <button class="btn btn-primary" onclick="send(${id})">→</button>
                     </div>
                 </div>
-
-                <h4 style="margin-top: 20px; margin-bottom: 10px; color: var(--primary);">💬 Чат з ШІ</h4>
-                <div class="chat-container">
-                    <div class="chat-messages" id="chatMessages">
-                        <div class="message system">
-                            <div class="message-content">Введіть ваш запит нижче. Експериментуйте!</div>
-                        </div>
-                    </div>
-                    <div class="chat-input-container">
-                        <textarea class="chat-input" id="chatInput" placeholder="Введіть ваш запит..." rows="2" onkeydown="handleKeyDown(event, ${task.id})"></textarea>
-                        <button class="btn btn-primary" onclick="sendMessage(${task.id})">Надіслати</button>
-                    </div>
-                </div>
-
-                ${extraContent}
-
-                <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                ${extra}
+                <div class="actions">
                     <button class="btn btn-secondary" onclick="closeModal()">Закрити</button>
-                    <button class="btn btn-primary" onclick="completeTask(${task.id})">✓ Позначити виконаним</button>
+                    <button class="btn btn-primary" onclick="complete(${id})">Виконано ✓</button>
                 </div>
             `;
-
-            document.getElementById('taskModal').classList.add('active');
+            document.getElementById('modal').classList.add('active');
         }
 
-        function closeModal() {
-            document.getElementById('taskModal').classList.remove('active');
-        }
+        function closeModal() { document.getElementById('modal').classList.remove('active'); }
+        function setInput(t) { document.getElementById('input').value = t; }
 
-        function useExample(example) {
-            document.getElementById('chatInput').value = example;
-        }
+        async function send(id) {
+            const input = document.getElementById('input');
+            const msg = input.value.trim();
+            if (!msg) return;
 
-        function handleKeyDown(event, taskId) {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                sendMessage(taskId);
-            }
-        }
+            const t = TASKS.find(x => x.id === id);
+            const msgs = document.getElementById('msgs');
 
-        async function sendMessage(taskId) {
-            const input = document.getElementById('chatInput');
-            const message = input.value.trim();
-            if (!message) return;
-
-            const task = tasks.find(t => t.id === taskId);
-            const messagesContainer = document.getElementById('chatMessages');
-
-            // Add user message
-            messagesContainer.innerHTML += `
-                <div class="message user">
-                    <div class="message-content">${escapeHtml(message)}</div>
-                </div>
-            `;
-
+            msgs.innerHTML += `<div class="msg user"><div class="msg-content">${esc(msg)}</div></div>`;
             input.value = '';
+            msgs.innerHTML += `<div class="msg ai" id="loading"><div class="msg-content"><div class="dots"><span></span><span></span><span></span></div></div></div>`;
+            msgs.scrollTop = msgs.scrollHeight;
 
-            // Add loading indicator
-            messagesContainer.innerHTML += `
-                <div class="message assistant" id="loadingMsg">
-                    <div class="message-content">
-                        <div class="thinking-dots">
-                            <span></span><span></span><span></span>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-            // Special handling for deep search
-            if (task.showDeepSearch) {
-                await simulateDeepSearch(message);
-            }
+            if (t.search) await fakeSearch();
 
             try {
-                const response = await callGemini(message, task);
+                const res = await callAI(msg, t);
+                document.getElementById('loading')?.remove();
+                msgs.innerHTML += `<div class="msg ai"><div class="msg-content">${fmt(res)}</div></div>`;
+                msgs.scrollTop = msgs.scrollHeight;
 
-                // Remove loading
-                document.getElementById('loadingMsg')?.remove();
-
-                // Add response
-                messagesContainer.innerHTML += `
-                    <div class="message assistant">
-                        <div class="message-content">${formatResponse(response)}</div>
-                    </div>
-                `;
-
-                // Handle special task types
-                if (task.showCoT) {
-                    visualizeChainOfThought(response);
-                }
-                if (task.executeCode) {
-                    executeGeneratedCode(response);
-                }
-                if (task.showChart) {
-                    renderChart(response);
-                }
-                if (task.showHallucination) {
-                    analyzeHallucination(response, message);
-                }
-                if (task.showGrammar) {
-                    showGrammarCorrections(response);
-                }
-
-            } catch (error) {
-                document.getElementById('loadingMsg')?.remove();
-                messagesContainer.innerHTML += `
-                    <div class="message system">
-                        <div class="message-content">Помилка: ${error.message}</div>
-                    </div>
-                `;
+                if (t.code) runCode(res);
+                if (t.chart) runChart(res);
+                if (t.cot) showCot(res);
+                if (t.hall) showHall();
+            } catch (e) {
+                document.getElementById('loading')?.remove();
+                msgs.innerHTML += `<div class="msg sys"><div class="msg-content">Помилка: ${e.message}</div></div>`;
             }
-
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        async function callGemini(prompt, task) {
-            let systemPrompt = '';
+        async function callAI(prompt, t) {
+            let sys = '';
+            if (t.code) sys = 'Напиши ТІЛЬКИ JavaScript код. Код має виводити результат через console.log(). Обовязково додай приклад виклику функції. Оберни код у ```javascript\\n...\\n```';
+            if (t.chart) sys = 'Напиши JavaScript код для Chart.js. Використай: const ctx = document.getElementById("chartCanvas"); new Chart(ctx, {...}). Оберни у ```javascript\\n...\\n```';
+            if (t.cot) sys = 'Відповідай покроково. Нумеруй кожен крок: 1. 2. 3.';
 
-            if (task.showCoT) {
-                systemPrompt = 'Відповідай покроково, нумеруючи кожен крок міркування. Показуй хід думок детально.';
-            } else if (task.executeCode) {
-                systemPrompt = 'Надай тільки JavaScript код без пояснень. Код має бути готовим до виконання. Оберни код у ```javascript ```.';
-            } else if (task.showChart) {
-                systemPrompt = 'Надай JavaScript код для побудови графіка з використанням Chart.js. Графік має відображатися на canvas з id="myChart". Оберни код у ```javascript ```.';
-            } else if (task.showGrammar) {
-                systemPrompt = 'Виправ всі граматичні та стилістичні помилки. Покажи оригінал та виправлений варіант. Поясни основні помилки.';
-            }
+            const full = sys ? sys + '\n\nЗапит: ' + prompt : prompt;
+            const model = localStorage.getItem('model') || 'gemini-2.0-flash';
+            const key = localStorage.getItem('apiKey');
 
-            const fullPrompt = systemPrompt ? `${systemPrompt}\n\nЗапит користувача: ${prompt}` : prompt;
-
-            const model = localStorage.getItem('geminiModel') || 'gemini-2.0-flash';
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+            const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: fullPrompt }] }],
-                    generationConfig: {
-                        temperature: 0.7,
-                        maxOutputTokens: 2048
-                    }
-                })
+                body: JSON.stringify({ contents: [{ parts: [{ text: full }] }], generationConfig: { temperature: 0.7, maxOutputTokens: 2048 } })
             });
 
-            if (!response.ok) {
-                throw new Error('Помилка API');
-            }
-
-            const data = await response.json();
-            return data.candidates[0].content.parts[0].text;
+            if (!r.ok) throw new Error('API error');
+            const d = await r.json();
+            return d.candidates[0].content.parts[0].text;
         }
 
-        async function simulateDeepSearch(query) {
-            const container = document.getElementById('searchViz');
-            if (!container) return;
+        function runCode(res) {
+            const m = res.match(/```(?:javascript|js)?\s*([\s\S]*?)```/);
+            if (!m) return;
 
-            container.innerHTML = '<h4 style="margin-bottom: 15px;">🔍 Глибокий пошук</h4>';
+            const code = m[1].trim();
+            document.getElementById('codeBox').innerHTML = `<pre>${esc(code)}</pre>`;
 
-            const steps = [
-                { text: 'Аналіз запиту та виділення ключових термінів...', delay: 800 },
-                { text: 'Пошук у базах наукових публікацій...', delay: 1200 },
-                { text: 'Аналіз законодавчої бази ЄС...', delay: 1000 },
-                { text: 'Пошук статистичних даних...', delay: 900 },
-                { text: 'Крос-референс знайденої інформації...', delay: 1100 },
-                { text: 'Синтез та формування відповіді...', delay: 800 }
-            ];
+            try {
+                const logs = [];
+                const mockConsole = { log: (...a) => logs.push(a.map(x => typeof x === 'object' ? JSON.stringify(x) : String(x)).join(' ')) };
+                new Function('console', code)(mockConsole);
 
+                if (logs.length) {
+                    document.getElementById('resultContent').innerHTML = `<pre>${esc(logs.join('\n'))}</pre>`;
+                    document.getElementById('resultBox').classList.remove('hidden');
+                }
+            } catch (e) {
+                document.getElementById('resultContent').innerHTML = `<pre style="color:var(--red)">Помилка: ${esc(e.message)}</pre>`;
+                document.getElementById('resultBox').classList.remove('hidden');
+            }
+        }
+
+        function runChart(res) {
+            const m = res.match(/```(?:javascript|js)?\s*([\s\S]*?)```/);
+            if (!m) return;
+
+            try {
+                if (window.activeChart) window.activeChart.destroy();
+                const code = m[1].trim();
+                new Function('Chart', 'document', code)(Chart, document);
+                // Store chart reference
+                const canvas = document.getElementById('chartCanvas');
+                if (canvas && Chart.getChart(canvas)) {
+                    window.activeChart = Chart.getChart(canvas);
+                }
+            } catch (e) {
+                console.error('Chart error:', e);
+            }
+        }
+
+        function showCot(res) {
+            const box = document.getElementById('cotBox');
+            if (!box) return;
+            const steps = res.split(/\n/).filter(l => /^\d+\./.test(l.trim()));
+            box.innerHTML = steps.map((s, i) => `<div class="search-step done"><div class="step-icon">${i + 1}</div><div>${s.replace(/^\d+\.\s*/, '')}</div></div>`).join('');
+        }
+
+        async function fakeSearch() {
+            const box = document.getElementById('searchBox');
+            if (!box) return;
+            const steps = ['Аналіз запиту...', 'Пошук джерел...', 'Обробка даних...', 'Формування відповіді...'];
             for (let i = 0; i < steps.length; i++) {
-                const node = document.createElement('div');
-                node.className = 'search-node processing';
-                node.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>${steps[i].text}</span>
-                        <div class="loading-spinner"></div>
-                    </div>
-                `;
-                container.appendChild(node);
-
-                await new Promise(r => setTimeout(r, steps[i].delay));
-
-                node.className = 'search-node complete';
-                node.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>${steps[i].text}</span>
-                        <span style="color: var(--success);">✓</span>
-                    </div>
-                `;
+                box.innerHTML += `<div class="search-step" id="ss${i}"><div class="step-icon" style="background:#f59e0b">⏳</div><div>${steps[i]}</div></div>`;
+                await new Promise(r => setTimeout(r, 600));
+                document.getElementById(`ss${i}`).className = 'search-step done';
+                document.getElementById(`ss${i}`).querySelector('.step-icon').textContent = '✓';
             }
         }
 
-        function visualizeChainOfThought(response) {
-            const container = document.getElementById('cotContainer');
-            if (!container) return;
-
-            // Parse steps from response
-            const steps = response.split(/\d+\.\s+/).filter(s => s.trim());
-
-            container.innerHTML = '<h4 style="margin-bottom: 15px;">🧠 Ланцюжок думок</h4>';
-
-            steps.forEach((step, index) => {
-                container.innerHTML += `
-                    <div class="cot-step">
-                        <div class="cot-number">${index + 1}</div>
-                        <div>${step.trim()}</div>
-                    </div>
-                `;
-            });
+        function showHall() {
+            const box = document.getElementById('hallBox');
+            if (box) box.innerHTML = `<div class="warning-box"><h4>⚠️ Можлива галюцинація</h4><p>ШІ може впевнено відповідати про неіснуючі речі. Завжди перевіряйте факти!</p></div>`;
         }
 
-        function executeGeneratedCode(response) {
-            const container = document.getElementById('codeOutput');
-            if (!container) return;
-
-            // Extract code from markdown
-            const codeMatch = response.match(/```(?:javascript|js)?\s*([\s\S]*?)```/);
-            if (codeMatch) {
-                const code = codeMatch[1];
-                container.innerHTML = `<pre>${escapeHtml(code)}</pre>`;
-
-                try {
-                    // Create a safe execution environment
-                    const result = eval(code);
-                    if (result !== undefined) {
-                        container.innerHTML += `<pre style="color: var(--success); margin-top: 10px;">Результат: ${result}</pre>`;
-                    }
-                } catch (error) {
-                    container.innerHTML += `<pre style="color: var(--error); margin-top: 10px;">Помилка: ${error.message}</pre>`;
-                }
-            }
-        }
-
-        function renderChart(response) {
-            const codeMatch = response.match(/```(?:javascript|js)?\s*([\s\S]*?)```/);
-            if (codeMatch) {
-                try {
-                    // Load Chart.js if not loaded
-                    if (!window.Chart) {
-                        const script = document.createElement('script');
-                        script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
-                        script.onload = () => {
-                            eval(codeMatch[1]);
-                        };
-                        document.head.appendChild(script);
-                    } else {
-                        eval(codeMatch[1]);
-                    }
-                } catch (error) {
-                    console.error('Chart error:', error);
-                }
-            }
-        }
-
-        function analyzeHallucination(response, query) {
-            const container = document.getElementById('hallucinationDemo');
-            if (!container) return;
-
-            container.innerHTML = `
-                <h4 style="margin-bottom: 15px;">⚠️ Аналіз галюцинацій</h4>
-                <div class="fact-check unverified">
-                    <span>⚠️</span>
-                    <span>ШІ відповів на питання про неіснуючу/вигадану інформацію</span>
-                </div>
-                <p style="margin-top: 15px; color: var(--text-muted);">
-                    <strong>Що таке галюцинації ШІ?</strong><br>
-                    Це випадки, коли модель генерує переконливу, але фактично неправильну інформацію.
-                    ШІ не "знає", що він не знає - він намагається дати корисну відповідь на основі патернів у навчальних даних.
-                </p>
-                <p style="margin-top: 10px; color: var(--text-muted);">
-                    <strong>Як запобігти?</strong><br>
-                    • Завжди перевіряйте факти з надійних джерел<br>
-                    • Просіть ШІ вказувати джерела<br>
-                    • Ставте уточнюючі питання<br>
-                    • Будьте особливо обережні з датами, числами, цитатами
-                </p>
-            `;
-        }
-
-        function showGrammarCorrections(response) {
-            const container = document.getElementById('grammarResult');
-            if (!container) return;
-
-            container.innerHTML = `
-                <h4 style="margin-bottom: 15px;">✏️ Результат перевірки</h4>
-                <div style="white-space: pre-wrap;">${formatResponse(response)}</div>
-            `;
-        }
-
-        function completeTask(taskId) {
-            completedTasks.add(taskId);
-            localStorage.setItem('completedTasks', JSON.stringify([...completedTasks]));
+        function complete(id) {
+            done.add(id);
+            localStorage.setItem('done', JSON.stringify([...done]));
             updateProgress();
             renderTasks();
             closeModal();
         }
 
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
+        function esc(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
 
-        function formatResponse(text) {
-            // Convert markdown-like formatting to HTML
-            return text
-                .replace(/```(\w*)\s*([\s\S]*?)```/g, '<pre style="background: var(--bg); padding: 10px; border-radius: 4px; overflow-x: auto;"><code>$2</code></pre>')
-                .replace(/`([^`]+)`/g, '<code style="background: var(--bg); padding: 2px 6px; border-radius: 3px;">$1</code>')
+        function fmt(t) {
+            return t
+                .replace(/```(\w*)\s*([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+                .replace(/`([^`]+)`/g, '<code>$1</code>')
                 .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-                .replace(/\*([^*]+)\*/g, '<em>$1</em>')
                 .replace(/\n/g, '<br>');
         }
 
-        // Close modal on outside click
-        document.getElementById('taskModal').addEventListener('click', (e) => {
-            if (e.target.id === 'taskModal') {
-                closeModal();
-            }
-        });
-
-        // Close on Escape
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeModal();
-            }
-        });
+        document.getElementById('modal').onclick = e => { if (e.target.id === 'modal') closeModal(); };
+        document.onkeydown = e => { if (e.key === 'Escape') closeModal(); };
     </script>
 </body>
 </html>
