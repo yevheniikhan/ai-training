@@ -103,9 +103,22 @@
 
         .chart-box { background: var(--white); border: 1px solid var(--gray-200); border-radius: 10px; padding: 20px; margin-top: 12px; min-height: 200px; }
 
-        .search-step { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--white); border: 1px solid var(--gray-200); border-radius: 8px; margin-bottom: 6px; font-size: 0.9rem; }
+        .search-step { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--white); border: 1px solid var(--gray-200); border-radius: 8px; margin-bottom: 6px; font-size: 0.9rem; opacity: 0; animation: fadeSlideIn 0.4s ease forwards; }
         .search-step.done { border-color: var(--green); background: rgba(16,185,129,0.05); }
-        .step-icon { width: 20px; height: 20px; border-radius: 50%; background: var(--green); color: white; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; }
+        .step-icon { width: 24px; height: 24px; border-radius: 50%; background: var(--green); color: white; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0; }
+
+        @keyframes fadeSlideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes spinPulse { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .search-step .step-icon.loading { background: #f59e0b; animation: spinPulse 1s linear infinite; }
+        .search-step-text { flex: 1; }
+        .search-step-time { font-size: 0.75rem; color: var(--gray-400); }
+
+        .cot-step { background: var(--white); border: 1px solid var(--gray-200); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+        .cot-step-header { display: flex; gap: 12px; align-items: flex-start; }
+        .cot-step-content { flex: 1; }
+        .cot-step-actions { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--gray-200); }
+        .cot-detail { margin-top: 8px; }
 
         .warning-box { background: rgba(239,68,68,0.1); border: 1px solid var(--red); border-radius: 10px; padding: 14px; margin-top: 20px; }
         .warning-box h4 { color: var(--red); font-size: 0.85rem; margin-bottom: 4px; }
@@ -181,26 +194,26 @@
 
     <script>
         const TASKS = [
-            { id: 1, title: "Базовий промт", desc: "Ефективні запити до ШІ", cat: "Промт", task: "Напишіть запит для списку 5 порід дерев України з описом.", hint: "Будьте конкретними: кількість, контекст.", ex: ["Опиши 5 порід дерев України"] },
-            { id: 2, title: "Роль та контекст", desc: "Задайте роль ШІ", cat: "Промт", task: "Попросіть ШІ як експерта з EUDR пояснити вимоги регламенту.", hint: "Почніть: 'Ти експерт...'", ex: ["Ти експерт з EUDR, поясни..."] },
-            { id: 3, title: "Ланцюжок думок", desc: "Покрокове мислення", cat: "CoT", task: "Попросіть покроково розрахувати CO2 поглинання лісом 100 га.", hint: "Додайте: 'покроково', 'покажи міркування'", ex: ["Розрахуй покроково..."], cot: true },
-            { id: 4, title: "Few-shot", desc: "Навчання на прикладах", cat: "Промт", task: "Дайте 2 приклади класифікації документів і попросіть класифікувати новий.", hint: "Формат: Приклад: X→Y. Класифікуй: Z", ex: ["Приклад: Наказ→Дозвіл. Класифікуй:..."] },
-            { id: 5, title: "Генерація коду", desc: "Код що виконується", cat: "Код", task: "Попросіть JS код для розрахунку площі лісової ділянки.", hint: "Тільки базовий JS без бібліотек", ex: ["JS функція площі прямокутника"], code: true },
-            { id: 6, title: "Візуалізація", desc: "Побудова графіків", cat: "Візуалізація", task: "Попросіть дані обсягів лісозаготівлі за 5 років у JSON.", hint: "Формат: [{year, value}]", ex: ["Дані лісозаготівлі 2019-2023 JSON"], chart: true },
-            { id: 7, title: "Граматика", desc: "Перевірка текстів", cat: "Текст", task: "Введіть текст з помилками для виправлення.", hint: "Попросіть пояснити помилки", ex: ["Виправ: Дерива ростуть в лісі"] },
-            { id: 8, title: "Глибокий аналіз", desc: "Комплексний пошук", cat: "Аналіз", task: "Проаналізуйте вплив клімату на ліси Карпат.", hint: "Складні багатоаспектні питання", ex: ["Аналіз впливу клімату на Карпати"], search: true },
-            { id: 9, title: "Галюцинації", desc: "Вигадки ШІ", cat: "Критика", task: "Запитайте про вигаданий 'Закон про ліси 2027'.", hint: "ШІ може впевнено вигадувати", ex: ["Розкажи про Закон про ліси 2027"], hall: true },
-            { id: 10, title: "Markdown вивід", desc: "Структуровані документи", cat: "Формати", task: "Попросіть таблицю 5 нацпарків у Markdown.", hint: "Вкажіть поля: назва, площа, рік", ex: ["5 нацпарків у Markdown таблиці"], markdown: true },
-            { id: 11, title: "Сумаризація", desc: "Стиснення тексту", cat: "Текст", task: "Завантажте текст або вставте його і попросіть підсумок.", hint: "Вкажіть довжину підсумку", ex: ["Підсумуй у 3 реченнях"], file: true },
-            { id: 12, title: "Переклад", desc: "Фаховий переклад", cat: "Текст", task: "Завантажте або вставте текст для перекладу.", hint: "Вкажіть галузь та мову", ex: ["Переклади зберігаючи терміни FSC"], file: true },
-            { id: 13, title: "Аналіз документів", desc: "Витяг інформації", cat: "Аналіз", task: "Завантажте документ і попросіть витягти дані.", hint: "Структуруйте: дати, суми, сторони", ex: ["Витягни дати, суми, сторони"], file: true },
-            { id: 14, title: "Порівняння", desc: "Порівняльний аналіз", cat: "Аналіз", task: "Порівняйте природне vs штучне відновлення лісів.", hint: "Попросіть таблицю", ex: ["Порівняй у таблиці..."] },
-            { id: 15, title: "Тести", desc: "Генерація тестів", cat: "Освіта", task: "Створіть тест з 5 питань про охорону лісів.", hint: "Вкажіть тип питань", ex: ["Тест 5 питань про ліси"] },
-            { id: 16, title: "Листи", desc: "Офіційна кореспонденція", cat: "Текст", task: "Напишіть лист щодо порушення лісового законодавства.", hint: "Вкажіть тон та адресата", ex: ["Офіційний лист про порушення"] },
-            { id: 17, title: "Ідеї", desc: "Мозковий штурм", cat: "Креатив", task: "10 ідей екоосвіти для школярів.", hint: "Попросіть креативні ідеї", ex: ["10 ідей екоосвіти"] },
-            { id: 18, title: "Обмеження", desc: "Контроль довжини", cat: "Промт", task: "Поясніть фотосинтез у 50 словах.", hint: "Експериментуйте: 50, 100, 200 слів", ex: ["Фотосинтез у 50 словах"] },
-            { id: 19, title: "Заборони", desc: "Чого НЕ робити", cat: "Промт", task: "Стаття про ліси БЕЗ термінів, до 100 слів.", hint: "Комбінуйте: напиши X, але НЕ Y", ex: ["Про ліси без термінів, 100 слів"] },
-            { id: 20, title: "Фінал", desc: "Всі навички разом", cat: "Комплекс", task: "Як експерт: аналіз + рішення у Markdown + план.", hint: "Роль + структура + обмеження", ex: ["Як експерт дай план у Markdown"] }
+            { id: 1, title: "Базовий промт", desc: "Ефективні запити до ШІ", cat: "Промт", task: "Напишіть запит для списку 5 порід дерев України з описом.", hint: "Будьте конкретними: кількість, контекст, формат відповіді.", ex: ["Опиши 5 порід дерев України", "Назви головні лісоутворюючі породи Полісся", "Які хвойні дерева ростуть в Карпатах?", "Порівняй дуб і бук за характеристиками"] },
+            { id: 2, title: "Роль та контекст", desc: "Задайте роль ШІ", cat: "Промт", task: "Попросіть ШІ як експерта з EUDR пояснити вимоги регламенту.", hint: "Почніть: 'Ти експерт...', 'Виступи як...', 'Уяви що ти...'", ex: ["Ти експерт з EUDR, поясни вимоги", "Як лісівник з 20-річним досвідом поясни...", "Виступи як юрист-еколог і проаналізуй...", "Ти консультант FSC, розкажи про сертифікацію"] },
+            { id: 3, title: "Ланцюжок думок", desc: "Покрокове мислення", cat: "CoT", task: "Попросіть покроково розрахувати або проаналізувати. ШІ покаже хід міркувань.", hint: "Ключові фрази: 'покроково', 'поясни кожен крок', 'покажи хід думок', 'розбий на етапи'", ex: ["Покроково розрахуй CO2 поглинання лісом 100 га", "Поетапно поясни процес сертифікації FSC", "Крок за кроком опиши як провести інвентаризацію лісу", "Розбий на етапи планування лісовідновлення"], cot: true },
+            { id: 4, title: "Few-shot", desc: "Навчання на прикладах", cat: "Промт", task: "Дайте 2-3 приклади і попросіть класифікувати новий елемент.", hint: "Формат: 'Приклад 1: X → Y. Приклад 2: A → B. Тепер класифікуй: Z'", ex: ["Наказ про рубку → Дозвіл. Акт огляду → Звіт. Класифікуй: Договір оренди", "Дуб → листяне. Сосна → хвойне. Визнач: Модрина", "Позитивний відгук → 😊. Негативний → 😞. Оціни: текст", "Терміново → пріоритет 1. Планово → пріоритет 3. Визнач пріоритет: запит"] },
+            { id: 5, title: "Генерація коду", desc: "Код що виконується", cat: "Код", task: "Попросіть JS код для розрахунків. Код виконається автоматично.", hint: "Тільки базовий JS. Вкажіть формули та приклади використання.", ex: ["JS функція об'єму колоди πr²h", "Код розрахунку площі ділянки", "Функція конвертації м³ в кубофути", "Калькулятор запасу деревини на гектар"], code: true },
+            { id: 6, title: "Візуалізація", desc: "Побудова графіків", cat: "Візуалізація", task: "Попросіть дані для графіка у форматі JSON.", hint: "Формат: [{year: 2020, value: 100}, ...]. Натисніть 'Побудувати' після отримання даних.", ex: ["Дані лісозаготівлі України 2019-2023 JSON", "Статистика лісових пожеж по роках", "Динаміка площі заповідників", "Обсяги лісовідновлення по регіонах"], chart: true },
+            { id: 7, title: "Граматика", desc: "Перевірка текстів", cat: "Текст", task: "Введіть текст з помилками для виправлення.", hint: "Попросіть: виправити, пояснити помилки, запропонувати кращі формулювання.", ex: ["Виправ: Дерива ростуть в лісі швидко", "Відредагуй офіційний лист: ...", "Знайди стилістичні помилки: ...", "Покращ формулювання: ..."] },
+            { id: 8, title: "Глибокий аналіз", desc: "Комплексний пошук", cat: "Аналіз", task: "Задайте складне питання для глибокого аналізу. Використовуйте професійні промти з проханням про пошук в інтернеті.", hint: "Професійні промти з пошуком: 'Знайди актуальну інформацію та проаналізуй...', 'Пошукай в інтернеті останні дані про...', 'Дослідж з використанням веб-джерел...'", ex: ["Пошукай в інтернеті актуальні зміни в EUDR станом на 2024 рік та проаналізуй їх вплив на Україну", "Знайди останні наукові дослідження про вплив зміни клімату на ліси Карпат та підсумуй висновки", "Дослідж з веб-джерел найкращі практики лісовідновлення в ЄС та створи порівняльну таблицю", "Знайди актуальну статистику лісових пожеж в Україні за 2023-2024 та проаналізуй тренди", "Пошукай інформацію про нові технології моніторингу лісів (дрони, супутники) та оціни їх ефективність"], search: true },
+            { id: 9, title: "Галюцинації ШІ", desc: "Критичне мислення", cat: "Критика", task: "Запитайте про вигадані факти. Проаналізуйте, як ШІ реагує.", hint: "ШІ не знає, чого він не знає. Він генерує правдоподібні, але вигадані факти.", ex: ["Розкажи про Закон про ліси 2027 року", "Хто автор книги 'Таємниці Карпатських лісів' 2025?", "Опиши дерево Sylvestris ukrainicus", "Які результати конференції COP35 щодо лісів?"], hall: true },
+            { id: 10, title: "Markdown вивід", desc: "Структуровані документи", cat: "Формати", task: "Попросіть відповідь у форматі Markdown з таблицями та списками.", hint: "Вкажіть структуру: заголовки, таблиці, нумеровані списки.", ex: ["5 нацпарків у Markdown таблиці", "Порівняння порід дерев у таблиці", "Чек-лист для інспекції лісу", "Структурований звіт про стан лісу"], markdown: true },
+            { id: 11, title: "Сумаризація", desc: "Стиснення тексту", cat: "Текст", task: "Завантажте документ або вставте текст. Попросіть підсумок.", hint: "Вкажіть: довжину (речень/слів), фокус (ключові факти/висновки), аудиторію.", ex: ["Підсумуй у 3 реченнях для керівництва", "Виділи 5 ключових пунктів", "Створи executive summary", "Стисни до 100 слів зберігаючи факти"], file: true },
+            { id: 12, title: "Переклад", desc: "Фаховий переклад", cat: "Текст", task: "Завантажте текст для перекладу зі збереженням термінології.", hint: "Вкажіть: галузь, цільову мову, збереження термінів.", ex: ["Переклади англійською зберігаючи терміни FSC", "Переклади з німецької лісову документацію", "Адаптуй текст для міжнародної аудиторії", "Переклади зберігаючи юридичну точність"], file: true },
+            { id: 13, title: "Аналіз документів", desc: "Витяг інформації", cat: "Аналіз", task: "Завантажте документ. Попросіть витягти конкретні дані.", hint: "Чітко вкажіть що шукати: дати, суми, сторони, зобов'язання.", ex: ["Витягни всі дати та дедлайни", "Знайди фінансові показники", "Виділи сторони договору та їх обов'язки", "Створи таблицю ключових умов"], file: true },
+            { id: 14, title: "Порівняння", desc: "Порівняльний аналіз", cat: "Аналіз", task: "Попросіть порівняти концепції, підходи або варіанти.", hint: "Вкажіть критерії порівняння, формат (таблиця), висновок.", ex: ["Порівняй у таблиці: природне vs штучне відновлення", "Переваги та недоліки суцільної vs вибіркової рубки", "FSC vs PEFC: критерії вибору", "Порівняй лісове законодавство України та ЄС"] },
+            { id: 15, title: "Тести", desc: "Генерація тестів", cat: "Освіта", task: "Створіть тест з питаннями та відповідями.", hint: "Вкажіть: кількість питань, тип (вибір/відкриті), рівень складності.", ex: ["5 питань з вибором відповіді про охорону лісів", "Тест для студентів-лісівників, середній рівень", "10 питань для перевірки знань EUDR", "Практичний тест з ідентифікації порід дерев"] },
+            { id: 16, title: "Листи", desc: "Офіційна кореспонденція", cat: "Текст", task: "Створіть офіційний лист з правильною структурою.", hint: "Вкажіть: адресата, тему, тон (офіційний/нейтральний), мету.", ex: ["Лист до держлісагентства про порушення", "Запит на надання інформації", "Скарга на незаконну лісозаготівлю", "Лист-пропозиція про співпрацю"] },
+            { id: 17, title: "Ідеї", desc: "Мозковий штурм", cat: "Креатив", task: "Згенеруйте креативні ідеї для проекту.", hint: "Попросіть: нестандартні ідеї, різні підходи, інноваційні рішення.", ex: ["10 ідей екоосвіти для школярів", "Креативні способи залучення громади до лісовідновлення", "Інноваційні методи моніторингу лісів", "Ідеї для еко-туризму в лісових регіонах"] },
+            { id: 18, title: "Обмеження", desc: "Контроль довжини", cat: "Промт", task: "Отримайте відповідь точної довжини.", hint: "Вкажіть точно: 'у 50 словах', 'одним абзацом', 'у 3 реченнях'.", ex: ["Фотосинтез у 50 словах", "Важливість лісів одним реченням", "EUDR у 100 словах для неспеціаліста", "Пояснення FSC у 3 пунктах"] },
+            { id: 19, title: "Заборони", desc: "Чого НЕ робити", cat: "Промт", task: "Вкажіть що НЕ включати у відповідь.", hint: "Комбінуйте позитивні та негативні інструкції.", ex: ["Про ліси без термінів, до 100 слів", "Поясни без технічних деталей", "Напиши НЕ згадуючи законодавство", "Опиши уникаючи негативних аспектів"] },
+            { id: 20, title: "Фінал", desc: "Всі навички разом", cat: "Комплекс", task: "Поєднайте всі техніки в одному запиті.", hint: "Комбінуйте: роль + контекст + структура + обмеження + формат.", ex: ["Як експерт FSC створи покроковий план сертифікації у Markdown", "В ролі консультанта порівняй підходи у таблиці до 500 слів", "Як лісівник проаналізуй проблему і дай 5 рішень", "Експертний аналіз з рекомендаціями у структурованому форматі"] }
         ];
 
         let done = new Set(JSON.parse(localStorage.getItem('done') || '[]'));
@@ -451,28 +464,236 @@
             a.click();
         }
 
-        function showCot(res) {
+        let cotSteps = [];
+        let cotResponses = [];
+
+        async function showCot(res) {
             const box = document.getElementById('cotBox');
             if (!box) return;
-            const steps = res.split(/\n/).filter(l => /^\d+\./.test(l.trim()));
-            box.innerHTML = steps.map((s, i) => `<div class="search-step done"><div class="step-icon">${i+1}</div><div class="md-content">${renderMd(s.replace(/^\d+\.\s*/,''))}</div></div>`).join('');
+
+            // Parse steps from response
+            const lines = res.split(/\n/);
+            cotSteps = [];
+            let currentStep = '';
+
+            for (const line of lines) {
+                if (/^\d+\./.test(line.trim())) {
+                    if (currentStep) cotSteps.push(currentStep.trim());
+                    currentStep = line;
+                } else if (currentStep) {
+                    currentStep += '\n' + line;
+                }
+            }
+            if (currentStep) cotSteps.push(currentStep.trim());
+
+            if (cotSteps.length === 0) {
+                cotSteps = res.split(/\n\n/).filter(s => s.trim());
+            }
+
+            cotResponses = new Array(cotSteps.length).fill('');
+
+            // Animate steps appearance
+            box.innerHTML = '';
+            for (let i = 0; i < cotSteps.length; i++) {
+                await new Promise(r => setTimeout(r, 300));
+                const stepText = cotSteps[i].replace(/^\d+\.\s*/, '');
+                box.innerHTML += `
+                    <div class="cot-step" id="cotStep${i}" style="animation: slideIn 0.3s ease">
+                        <div class="cot-step-header">
+                            <div class="step-icon">${i+1}</div>
+                            <div class="cot-step-content md-content">${renderMd(stepText)}</div>
+                        </div>
+                        <div class="cot-step-actions">
+                            <button class="btn btn-sm btn-secondary" onclick="queryCotStep(${i})">🔍 Деталізувати</button>
+                            <div class="cot-detail hidden" id="cotDetail${i}"></div>
+                        </div>
+                    </div>`;
+            }
+
+            // Add summary button
+            box.innerHTML += `
+                <div class="cot-summary" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--gray-200);">
+                    <button class="btn btn-primary" onclick="summarizeCot()">📝 Підсумувати всі кроки</button>
+                    <div class="cot-summary-result hidden" id="cotSummary" style="margin-top: 12px;"></div>
+                </div>`;
+        }
+
+        async function queryCotStep(index) {
+            const detail = document.getElementById(`cotDetail${index}`);
+            const stepText = cotSteps[index];
+
+            detail.innerHTML = `<div class="dots" style="padding: 12px;"><span></span><span></span><span></span></div>`;
+            detail.classList.remove('hidden');
+
+            try {
+                const prompt = `Детально поясни цей крок міркування:\n\n${stepText}\n\nДай розгорнуте пояснення з прикладами.`;
+                const model = localStorage.getItem('model') || 'gemini-2.5-flash';
+                const key = localStorage.getItem('apiKey');
+
+                const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.7, maxOutputTokens: 4096 } })
+                });
+
+                if (!r.ok) throw new Error('API error');
+                const d = await r.json();
+                const response = d.candidates[0].content.parts[0].text;
+                cotResponses[index] = response;
+
+                detail.innerHTML = `<div class="cot-detail-content md-content" style="background: var(--gray-50); padding: 12px; border-radius: 8px; margin-top: 10px;">${renderMd(response)}</div>`;
+            } catch (e) {
+                detail.innerHTML = `<div style="color: var(--red); padding: 12px;">Помилка: ${e.message}</div>`;
+            }
+        }
+
+        async function summarizeCot() {
+            const summary = document.getElementById('cotSummary');
+            summary.innerHTML = `<div class="dots"><span></span><span></span><span></span></div>`;
+            summary.classList.remove('hidden');
+
+            try {
+                let fullContent = 'Підсумуй наступні кроки міркування:\n\n';
+                cotSteps.forEach((step, i) => {
+                    fullContent += `Крок ${i+1}: ${step}\n`;
+                    if (cotResponses[i]) fullContent += `Деталізація: ${cotResponses[i]}\n`;
+                    fullContent += '\n';
+                });
+                fullContent += '\nСтвори стислий підсумок з ключовими висновками.';
+
+                const model = localStorage.getItem('model') || 'gemini-2.5-flash';
+                const key = localStorage.getItem('apiKey');
+
+                const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: fullContent }] }], generationConfig: { temperature: 0.7, maxOutputTokens: 4096 } })
+                });
+
+                if (!r.ok) throw new Error('API error');
+                const d = await r.json();
+                const response = d.candidates[0].content.parts[0].text;
+
+                summary.innerHTML = `<div class="md-content" style="background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(236,72,153,0.05)); padding: 16px; border-radius: 10px; border: 1px solid rgba(99,102,241,0.2);">${renderMd(response)}</div>`;
+            } catch (e) {
+                summary.innerHTML = `<div style="color: var(--red);">Помилка: ${e.message}</div>`;
+            }
         }
 
         async function fakeSearch() {
             const box = document.getElementById('searchBox');
             if (!box) return;
-            const steps = ['Аналіз запиту...', 'Пошук джерел...', 'Обробка...', 'Формування відповіді...'];
+
+            const steps = [
+                { text: 'Аналіз запиту та ключових термінів', icon: '🔍', detail: 'Виділення головних понять для пошуку' },
+                { text: 'Пошук у наукових базах даних', icon: '📚', detail: 'Google Scholar, Scopus, Web of Science' },
+                { text: 'Аналіз офіційних джерел', icon: '🏛️', detail: 'Законодавство, регуляторні акти, директиви ЄС' },
+                { text: 'Перевірка актуальності даних', icon: '📅', detail: 'Порівняння з останніми публікаціями' },
+                { text: 'Синтез та структурування', icon: '🧩', detail: 'Об\'єднання інформації з різних джерел' },
+                { text: 'Формування аналітичного звіту', icon: '📝', detail: 'Підготовка структурованої відповіді' }
+            ];
+
+            box.innerHTML = '<div class="search-progress" style="margin-bottom: 12px;"><div class="search-progress-bar" style="height: 4px; background: var(--gray-200); border-radius: 2px; overflow: hidden;"><div id="searchProgressFill" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary), #ec4899); transition: width 0.3s;"></div></div></div>';
+
             for (let i = 0; i < steps.length; i++) {
-                box.innerHTML += `<div class="search-step" id="ss${i}"><div class="step-icon" style="background:#f59e0b">⏳</div><div>${steps[i]}</div></div>`;
-                await new Promise(r => setTimeout(r, 500));
-                document.getElementById(`ss${i}`).className = 'search-step done';
-                document.getElementById(`ss${i}`).querySelector('.step-icon').textContent = '✓';
+                const step = steps[i];
+                const delay = 400 + Math.random() * 400;
+
+                box.innerHTML += `
+                    <div class="search-step" id="ss${i}" style="animation-delay: ${i * 0.1}s">
+                        <div class="step-icon loading" style="background: #f59e0b; font-size: 0.9rem;">${step.icon}</div>
+                        <div class="search-step-text">
+                            <div style="font-weight: 500;">${step.text}</div>
+                            <div style="font-size: 0.75rem; color: var(--gray-400); margin-top: 2px;">${step.detail}</div>
+                        </div>
+                        <div class="search-step-time" id="ssTime${i}">...</div>
+                    </div>`;
+
+                document.getElementById('searchProgressFill').style.width = `${((i + 0.5) / steps.length) * 100}%`;
+
+                const startTime = Date.now();
+                await new Promise(r => setTimeout(r, delay));
+                const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+
+                const stepEl = document.getElementById(`ss${i}`);
+                stepEl.classList.add('done');
+                stepEl.querySelector('.step-icon').classList.remove('loading');
+                stepEl.querySelector('.step-icon').style.background = 'var(--green)';
+                stepEl.querySelector('.step-icon').textContent = '✓';
+                document.getElementById(`ssTime${i}`).textContent = `${elapsed}s`;
+                document.getElementById('searchProgressFill').style.width = `${((i + 1) / steps.length) * 100}%`;
             }
+
+            // Add summary info
+            box.innerHTML += `
+                <div style="margin-top: 12px; padding: 10px; background: var(--gray-50); border-radius: 8px; font-size: 0.85rem; color: var(--gray-600);">
+                    <strong>💡 Порада:</strong> Для актуальних даних використовуйте промти з проханням шукати в інтернеті:
+                    <em>"Знайди найновішу інформацію про..."</em>, <em>"Пошукай актуальні дані станом на 2024..."</em>
+                </div>`;
         }
 
         function showHall() {
             const box = document.getElementById('hallBox');
-            if (box) box.innerHTML = `<div class="warning-box"><h4>⚠️ Можлива галюцинація</h4><p>ШІ може вигадувати факти. Перевіряйте з офіційних джерел!</p></div>`;
+            if (!box) return;
+
+            box.innerHTML = `
+                <div class="warning-box" style="margin-top: 20px;">
+                    <h4>⚠️ Можлива галюцинація ШІ</h4>
+                    <p style="margin-bottom: 12px;">ШІ може генерувати правдоподібну, але повністю вигадану інформацію. Завжди перевіряйте факти!</p>
+                </div>
+
+                <div class="hall-explanation" style="margin-top: 16px; background: var(--white); border: 1px solid var(--gray-200); border-radius: 10px; padding: 16px;">
+                    <h4 style="font-size: 0.95rem; margin-bottom: 12px; color: var(--gray-900);">🧠 Чому виникають галюцинації?</h4>
+
+                    <div class="hall-reason" style="display: flex; gap: 10px; margin-bottom: 12px; padding: 10px; background: var(--gray-50); border-radius: 8px;">
+                        <span style="font-size: 1.2rem;">1️⃣</span>
+                        <div>
+                            <strong>Статистичне передбачення</strong>
+                            <p style="font-size: 0.85rem; color: var(--gray-600); margin-top: 4px;">ШІ не "знає" факти — він передбачає найімовірніше продовження тексту на основі патернів. Якщо щось звучить правдоподібно, він це згенерує.</p>
+                        </div>
+                    </div>
+
+                    <div class="hall-reason" style="display: flex; gap: 10px; margin-bottom: 12px; padding: 10px; background: var(--gray-50); border-radius: 8px;">
+                        <span style="font-size: 1.2rem;">2️⃣</span>
+                        <div>
+                            <strong>Відсутність знань про межі</strong>
+                            <p style="font-size: 0.85rem; color: var(--gray-600); margin-top: 4px;">ШІ не усвідомлює, чого він не знає. Замість сказати "не знаю", він намагається дати відповідь, заповнюючи прогалини вигадками.</p>
+                        </div>
+                    </div>
+
+                    <div class="hall-reason" style="display: flex; gap: 10px; margin-bottom: 12px; padding: 10px; background: var(--gray-50); border-radius: 8px;">
+                        <span style="font-size: 1.2rem;">3️⃣</span>
+                        <div>
+                            <strong>Дата навчання</strong>
+                            <p style="font-size: 0.85rem; color: var(--gray-600); margin-top: 4px;">Моделі мають "дату відсічення" даних. Питання про нові події, закони чи дослідження провокують вигадки.</p>
+                        </div>
+                    </div>
+
+                    <div class="hall-reason" style="display: flex; gap: 10px; margin-bottom: 12px; padding: 10px; background: var(--gray-50); border-radius: 8px;">
+                        <span style="font-size: 1.2rem;">4️⃣</span>
+                        <div>
+                            <strong>Змішування джерел</strong>
+                            <p style="font-size: 0.85rem; color: var(--gray-600); margin-top: 4px;">ШІ може поєднувати реальні факти з різних контекстів, створюючи неіснуючі "гібриди" інформації.</p>
+                        </div>
+                    </div>
+
+                    <div class="hall-reason" style="display: flex; gap: 10px; padding: 10px; background: var(--gray-50); border-radius: 8px;">
+                        <span style="font-size: 1.2rem;">5️⃣</span>
+                        <div>
+                            <strong>Тиск на відповідь</strong>
+                            <p style="font-size: 0.85rem; color: var(--gray-600); margin-top: 4px;">Моделі навчені бути корисними та відповідати. Це створює тиск давати відповідь, навіть коли краще було б промовчати.</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 16px; padding: 12px; background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.05)); border-radius: 8px; border: 1px solid rgba(16,185,129,0.2);">
+                        <h5 style="font-size: 0.85rem; color: var(--green); margin-bottom: 8px;">✅ Як захиститися?</h5>
+                        <ul style="font-size: 0.85rem; color: var(--gray-600); margin-left: 16px;">
+                            <li>Перевіряйте факти в офіційних джерелах</li>
+                            <li>Питайте про джерела та посилання</li>
+                            <li>Будьте скептичними до конкретних цифр, дат, імен</li>
+                            <li>Просіть підтвердження: "Ти впевнений? Звідки ця інформація?"</li>
+                            <li>Використовуйте моделі з доступом до інтернету для актуальних даних</li>
+                        </ul>
+                    </div>
+                </div>`;
         }
 
         function complete(id) {
