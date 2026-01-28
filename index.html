@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Training Workshop</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         :root {
             --primary: #6366f1;
             --primary-light: #a5b4fc;
@@ -24,256 +23,91 @@
             --red: #ef4444;
             --radius: 12px;
         }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--gray-900);
-            line-height: 1.6;
-        }
-
-        header {
-            background: var(--white);
-            padding: 32px 24px;
-            text-align: center;
-            border-bottom: 1px solid var(--gray-200);
-        }
-
-        header h1 {
-            font-size: 1.75rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary), #ec4899);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--gray-900); line-height: 1.6; }
+        header { background: var(--white); padding: 32px 24px; text-align: center; border-bottom: 1px solid var(--gray-200); }
+        header h1 { font-size: 1.75rem; font-weight: 700; background: linear-gradient(135deg, var(--primary), #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         header p { color: var(--gray-600); margin-top: 4px; }
-
-        .badge {
-            display: inline-block;
-            background: var(--gray-100);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            color: var(--gray-600);
-            margin-top: 12px;
-        }
-
+        .badge { display: inline-block; background: var(--gray-100); padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; color: var(--gray-600); margin-top: 12px; }
         .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
 
-        /* API Section */
-        .api-box {
-            background: var(--white);
-            max-width: 440px;
-            margin: 0 auto 32px;
-            padding: 32px;
-            border-radius: var(--radius);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-        }
-
+        .api-box { background: var(--white); max-width: 440px; margin: 0 auto 32px; padding: 32px; border-radius: var(--radius); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
         .api-box h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; }
         .api-box > p { color: var(--gray-600); font-size: 0.9rem; margin-bottom: 16px; }
         .api-box a { color: var(--primary); }
 
-        input, textarea {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1px solid var(--gray-200);
-            border-radius: 8px;
-            font-size: 0.95rem;
-            font-family: inherit;
-            background: var(--gray-50);
-        }
+        input, textarea { width: 100%; padding: 12px 14px; border: 1px solid var(--gray-200); border-radius: 8px; font-size: 0.95rem; font-family: inherit; background: var(--gray-50); }
+        input:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
 
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
-        }
-
-        .btn {
-            padding: 12px 20px;
-            border-radius: 8px;
-            border: none;
-            font-weight: 500;
-            cursor: pointer;
-            font-family: inherit;
-            transition: all 0.15s;
-        }
-
+        .btn { padding: 12px 20px; border-radius: 8px; border: none; font-weight: 500; cursor: pointer; font-family: inherit; transition: all 0.15s; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: #4f46e5; }
         .btn-secondary { background: var(--gray-100); color: var(--gray-900); }
         .btn-secondary:hover { background: var(--gray-200); }
+        .btn-sm { padding: 8px 14px; font-size: 0.85rem; }
 
         #apiStatus { margin-top: 12px; font-size: 0.9rem; }
 
-        /* Progress */
-        .progress-box {
-            background: var(--white);
-            padding: 16px 20px;
-            border-radius: var(--radius);
-            margin-bottom: 24px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-        }
-
+        .progress-box { background: var(--white); padding: 16px 20px; border-radius: var(--radius); margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
         .progress-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; }
         .progress-bar { height: 6px; background: var(--gray-200); border-radius: 3px; }
         .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), #ec4899); border-radius: 3px; transition: width 0.3s; }
 
-        /* Tasks */
         .tasks { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
-
-        .task {
-            background: var(--white);
-            padding: 20px;
-            border-radius: var(--radius);
-            cursor: pointer;
-            border: 1px solid var(--gray-200);
-            transition: all 0.2s;
-            position: relative;
-        }
-
+        .task { background: var(--white); padding: 20px; border-radius: var(--radius); cursor: pointer; border: 1px solid var(--gray-200); transition: all 0.2s; position: relative; }
         .task:hover { border-color: var(--primary-light); box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
         .task.done { border-color: var(--green); }
-        .task.done::after {
-            content: '✓'; position: absolute; top: 12px; right: 12px;
-            background: var(--green); color: white; width: 22px; height: 22px;
-            border-radius: 50%; font-size: 12px; display: flex; align-items: center; justify-content: center;
-        }
-
-        .task-num {
-            background: linear-gradient(135deg, var(--primary), #ec4899);
-            color: white; padding: 3px 10px; border-radius: 6px;
-            font-size: 0.75rem; font-weight: 600; display: inline-block; margin-bottom: 10px;
-        }
-
+        .task.done::after { content: '✓'; position: absolute; top: 12px; right: 12px; background: var(--green); color: white; width: 22px; height: 22px; border-radius: 50%; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+        .task-num { background: linear-gradient(135deg, var(--primary), #ec4899); color: white; padding: 3px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; display: inline-block; margin-bottom: 10px; }
         .task h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
         .task p { font-size: 0.85rem; color: var(--gray-600); }
         .task-cat { font-size: 0.7rem; color: var(--gray-400); margin-top: 10px; display: inline-block; background: var(--gray-100); padding: 3px 8px; border-radius: 4px; }
 
-        /* Modal */
-        .modal {
-            display: none; position: fixed; inset: 0;
-            background: rgba(0,0,0,0.3); backdrop-filter: blur(4px);
-            z-index: 1000; overflow-y: auto;
-        }
-
-        .modal.active { display: flex; align-items: flex-start; justify-content: center; padding: 40px 16px; }
-
-        .modal-box {
-            background: var(--white);
-            width: 100%; max-width: 750px;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-            animation: slideIn 0.25s ease;
-        }
-
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); z-index: 1000; overflow-y: auto; }
+        .modal.active { display: flex; align-items: flex-start; justify-content: center; padding: 20px 16px; }
+        .modal-box { background: var(--white); width: 100%; max-width: 900px; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); animation: slideIn 0.25s ease; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
-
-        .modal-head {
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--gray-200);
-            display: flex; justify-content: space-between; align-items: center;
-        }
-
+        .modal-head { padding: 20px 24px; border-bottom: 1px solid var(--gray-200); display: flex; justify-content: space-between; align-items: center; }
         .modal-head h2 { font-size: 1.1rem; font-weight: 600; }
-
-        .close-btn {
-            width: 32px; height: 32px; border-radius: 8px;
-            background: var(--gray-100); border: none; cursor: pointer;
-            font-size: 1.2rem; color: var(--gray-600);
-        }
-
+        .close-btn { width: 32px; height: 32px; border-radius: 8px; background: var(--gray-100); border: none; cursor: pointer; font-size: 1.2rem; color: var(--gray-600); }
         .close-btn:hover { background: var(--gray-200); }
+        .modal-body { padding: 24px; max-height: 80vh; overflow-y: auto; }
 
-        .modal-body { padding: 24px; }
-
-        .info-box {
-            background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(236,72,153,0.05));
-            padding: 16px; border-radius: 10px; margin-bottom: 16px;
-            border: 1px solid rgba(99,102,241,0.2);
-        }
-
+        .info-box { background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(236,72,153,0.05)); padding: 16px; border-radius: 10px; margin-bottom: 16px; border: 1px solid rgba(99,102,241,0.2); }
         .info-box h4 { font-size: 0.75rem; text-transform: uppercase; color: var(--primary); margin-bottom: 6px; font-weight: 600; }
-
         .tip-box { background: var(--gray-50); padding: 14px; border-radius: 10px; margin-bottom: 16px; }
         .tip-box h4 { font-size: 0.8rem; color: var(--gray-600); margin-bottom: 6px; }
-        .tip-box p { font-size: 0.9rem; }
-
         .examples { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-        .example {
-            background: var(--white); border: 1px solid var(--gray-200);
-            padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer;
-        }
+        .example { background: var(--white); border: 1px solid var(--gray-200); padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; }
         .example:hover { border-color: var(--primary); color: var(--primary); }
 
-        /* Chat */
-        .chat-label { font-size: 0.85rem; font-weight: 600; margin-bottom: 10px; color: var(--gray-900); }
-
-        .chat {
-            background: var(--gray-50);
-            border: 1px solid var(--gray-200);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .messages { height: 280px; overflow-y: auto; padding: 16px; }
-
+        .chat-label { font-size: 0.85rem; font-weight: 600; margin-bottom: 10px; }
+        .chat { background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 10px; overflow: hidden; }
+        .messages { min-height: 150px; max-height: 350px; overflow-y: auto; padding: 16px; }
         .msg { margin-bottom: 12px; }
         .msg.user { text-align: right; }
-
-        .msg-content {
-            display: inline-block; padding: 10px 14px; border-radius: 10px;
-            max-width: 85%; text-align: left; font-size: 0.9rem;
-        }
-
+        .msg-content { display: inline-block; padding: 12px 16px; border-radius: 10px; max-width: 90%; text-align: left; font-size: 0.9rem; line-height: 1.6; }
         .msg.user .msg-content { background: var(--primary); color: white; border-bottom-right-radius: 4px; }
         .msg.ai .msg-content { background: var(--white); border: 1px solid var(--gray-200); border-bottom-left-radius: 4px; }
         .msg.sys .msg-content { background: transparent; color: var(--gray-400); font-size: 0.85rem; text-align: center; width: 100%; }
-
         .chat-input { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--gray-200); background: var(--white); }
         .chat-input textarea { flex: 1; resize: none; }
 
-        /* Output areas */
         .output-section { margin-top: 20px; }
-        .output-section h4 { font-size: 0.85rem; font-weight: 600; margin-bottom: 10px; }
-
-        .code-box {
-            background: #1e1e1e; color: #d4d4d4;
-            padding: 16px; border-radius: 10px;
-            font-family: 'Monaco', 'Consolas', monospace;
-            font-size: 0.85rem; overflow-x: auto;
-        }
-
+        .output-section h4 { font-size: 0.85rem; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .code-box { background: #1e1e1e; color: #d4d4d4; padding: 16px; border-radius: 10px; font-family: 'Monaco', 'Consolas', monospace; font-size: 0.85rem; overflow-x: auto; max-height: 250px; overflow-y: auto; }
         .code-box pre { margin: 0; white-space: pre-wrap; }
-
-        .result-box {
-            margin-top: 12px; padding: 14px; background: var(--gray-50);
-            border-radius: 10px; border-left: 4px solid var(--green);
-        }
-
+        .result-box { margin-top: 12px; padding: 14px; background: var(--gray-50); border-radius: 10px; border-left: 4px solid var(--green); }
+        .result-box.error { border-left-color: var(--red); }
         .result-box h5 { font-size: 0.8rem; color: var(--green); margin-bottom: 6px; }
+        .result-box.error h5 { color: var(--red); }
 
-        .chart-box {
-            background: var(--white); border: 1px solid var(--gray-200);
-            border-radius: 10px; padding: 20px; margin-top: 20px;
-        }
+        .chart-box { background: var(--white); border: 1px solid var(--gray-200); border-radius: 10px; padding: 20px; margin-top: 12px; min-height: 200px; }
 
-        .search-step {
-            display: flex; align-items: center; gap: 10px;
-            padding: 10px 14px; background: var(--white);
-            border: 1px solid var(--gray-200); border-radius: 8px;
-            margin-bottom: 6px; font-size: 0.9rem;
-        }
-
+        .search-step { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--white); border: 1px solid var(--gray-200); border-radius: 8px; margin-bottom: 6px; font-size: 0.9rem; }
         .search-step.done { border-color: var(--green); background: rgba(16,185,129,0.05); }
         .step-icon { width: 20px; height: 20px; border-radius: 50%; background: var(--green); color: white; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; }
 
-        .warning-box {
-            background: rgba(239,68,68,0.1); border: 1px solid var(--red);
-            border-radius: 10px; padding: 14px; margin-top: 20px;
-        }
+        .warning-box { background: rgba(239,68,68,0.1); border: 1px solid var(--red); border-radius: 10px; padding: 14px; margin-top: 20px; }
         .warning-box h4 { color: var(--red); font-size: 0.85rem; margin-bottom: 4px; }
         .warning-box p { font-size: 0.85rem; color: var(--gray-600); }
 
@@ -287,8 +121,27 @@
 
         .hidden { display: none !important; }
 
-        .msg-content pre { background: #f1f5f9; padding: 10px; border-radius: 6px; overflow-x: auto; margin: 8px 0; }
-        .msg-content code { background: rgba(0,0,0,0.06); padding: 2px 5px; border-radius: 4px; font-family: monospace; font-size: 0.85em; }
+        .md-content h1, .md-content h2, .md-content h3 { margin: 12px 0 8px; font-weight: 600; }
+        .md-content h1 { font-size: 1.2rem; }
+        .md-content h2 { font-size: 1.1rem; }
+        .md-content h3 { font-size: 1rem; }
+        .md-content p { margin: 6px 0; }
+        .md-content ul, .md-content ol { margin: 6px 0; padding-left: 20px; }
+        .md-content li { margin: 3px 0; }
+        .md-content code { background: var(--gray-100); padding: 2px 5px; border-radius: 4px; font-family: monospace; font-size: 0.85em; }
+        .md-content pre { background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 8px; overflow-x: auto; margin: 10px 0; }
+        .md-content pre code { background: none; padding: 0; color: inherit; }
+        .md-content table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.9rem; }
+        .md-content th, .md-content td { border: 1px solid var(--gray-200); padding: 8px 10px; text-align: left; }
+        .md-content th { background: var(--gray-50); font-weight: 600; }
+
+        .preview-panel { background: var(--white); border: 1px solid var(--gray-200); border-radius: 10px; margin-top: 12px; }
+        .preview-header { background: var(--gray-50); padding: 10px 16px; border-bottom: 1px solid var(--gray-200); display: flex; justify-content: space-between; align-items: center; border-radius: 10px 10px 0 0; }
+        .preview-header span { font-size: 0.85rem; font-weight: 500; }
+        .preview-body { padding: 16px; max-height: 350px; overflow-y: auto; }
+
+        .download-btn { background: var(--green); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; }
+        .download-btn:hover { background: #059669; }
     </style>
 </head>
 <body>
@@ -332,25 +185,27 @@
             { id: 2, title: "Роль та контекст", desc: "Задайте роль ШІ", cat: "Промт", task: "Попросіть ШІ як експерта з EUDR пояснити вимоги регламенту.", hint: "Почніть: 'Ти експерт...'", ex: ["Ти експерт з EUDR, поясни..."] },
             { id: 3, title: "Ланцюжок думок", desc: "Покрокове мислення", cat: "CoT", task: "Попросіть покроково розрахувати CO2 поглинання лісом 100 га.", hint: "Додайте: 'покроково', 'покажи міркування'", ex: ["Розрахуй покроково..."], cot: true },
             { id: 4, title: "Few-shot", desc: "Навчання на прикладах", cat: "Промт", task: "Дайте 2 приклади класифікації документів і попросіть класифікувати новий.", hint: "Формат: Приклад: X→Y. Класифікуй: Z", ex: ["Приклад: Наказ→Дозвіл. Класифікуй:..."] },
-            { id: 5, title: "Генерація коду", desc: "Код що виконується", cat: "Код", task: "Попросіть JS код для об'єму циліндра (π×r²×h) з прикладом.", hint: "Вкажіть мову та приклад використання", ex: ["JS функція об'єму циліндра з прикладом"], code: true },
-            { id: 6, title: "Візуалізація", desc: "Графіки Chart.js", cat: "Візуалізація", task: "Попросіть створити графік вирубки лісів за 5 років.", hint: "Вкажіть тип: стовпчиковий, лінійний", ex: ["Стовпчиковий графік вирубки 2019-2023"], chart: true },
-            { id: 7, title: "Граматика", desc: "Перевірка текстів", cat: "Текст", task: "Введіть текст з помилками для виправлення.", hint: "Попросіть пояснити помилки", ex: ["Виправ помилки: Дерива ростуть в лісі"] },
-            { id: 8, title: "Глибокий аналіз", desc: "Комплексний пошук", cat: "Аналіз", task: "Попросіть проаналізувати вплив клімату на ліси Карпат.", hint: "Складні багатоаспектні питання", ex: ["Проаналізуй вплив клімату на Карпати"], search: true },
+            { id: 5, title: "Генерація коду", desc: "Код що виконується", cat: "Код", task: "Попросіть JS код для розрахунку площі лісової ділянки.", hint: "Тільки базовий JS без бібліотек", ex: ["JS функція площі прямокутника"], code: true },
+            { id: 6, title: "Візуалізація", desc: "Побудова графіків", cat: "Візуалізація", task: "Попросіть дані обсягів лісозаготівлі за 5 років у JSON.", hint: "Формат: [{year, value}]", ex: ["Дані лісозаготівлі 2019-2023 JSON"], chart: true },
+            { id: 7, title: "Граматика", desc: "Перевірка текстів", cat: "Текст", task: "Введіть текст з помилками для виправлення.", hint: "Попросіть пояснити помилки", ex: ["Виправ: Дерива ростуть в лісі"] },
+            { id: 8, title: "Глибокий аналіз", desc: "Комплексний пошук", cat: "Аналіз", task: "Проаналізуйте вплив клімату на ліси Карпат.", hint: "Складні багатоаспектні питання", ex: ["Аналіз впливу клімату на Карпати"], search: true },
             { id: 9, title: "Галюцинації", desc: "Вигадки ШІ", cat: "Критика", task: "Запитайте про вигаданий 'Закон про ліси 2027'.", hint: "ШІ може впевнено вигадувати", ex: ["Розкажи про Закон про ліси 2027"], hall: true },
-            { id: 10, title: "JSON вивід", desc: "Структуровані дані", cat: "Формати", task: "Попросіть дані про 5 нацпарків у JSON.", hint: "Вкажіть поля: назва, площа, рік", ex: ["5 нацпарків України у JSON"] },
+            { id: 10, title: "Markdown вивід", desc: "Структуровані документи", cat: "Формати", task: "Попросіть таблицю 5 нацпарків у Markdown.", hint: "Вкажіть поля: назва, площа, рік", ex: ["5 нацпарків у Markdown таблиці"], markdown: true },
             { id: 11, title: "Сумаризація", desc: "Стиснення тексту", cat: "Текст", task: "Вставте текст і попросіть підсумок у 3 реченнях.", hint: "Вкажіть довжину підсумку", ex: ["Підсумуй у 3 реченнях: ..."] },
-            { id: 12, title: "Переклад", desc: "Фаховий переклад", cat: "Текст", task: "Перекладіть текст зберігаючи термінологію.", hint: "Вкажіть галузь", ex: ["Переклади зберігаючи терміни лісівництва"] },
-            { id: 13, title: "Аналіз документів", desc: "Витяг інформації", cat: "Аналіз", task: "Витягніть ключові дані з договору.", hint: "Структуруйте: дати, суми, сторони", ex: ["Витягни з договору: дати, суми..."] },
+            { id: 12, title: "Переклад", desc: "Фаховий переклад", cat: "Текст", task: "Перекладіть текст зберігаючи термінологію FSC.", hint: "Вкажіть галузь", ex: ["Переклади зберігаючи терміни FSC"] },
+            { id: 13, title: "Аналіз документів", desc: "Витяг інформації", cat: "Аналіз", task: "Витягніть ключові дані з договору.", hint: "Структуруйте: дати, суми, сторони", ex: ["Витягни з договору дати, суми"] },
             { id: 14, title: "Порівняння", desc: "Порівняльний аналіз", cat: "Аналіз", task: "Порівняйте природне vs штучне відновлення лісів.", hint: "Попросіть таблицю", ex: ["Порівняй у таблиці..."] },
-            { id: 15, title: "Тести", desc: "Генерація тестів", cat: "Освіта", task: "Створіть тест з 5 питань про охорону лісів.", hint: "Вкажіть тип питань", ex: ["Тест 5 питань про ліси з відповідями"] },
-            { id: 16, title: "Листи", desc: "Офіційна кореспонденція", cat: "Текст", task: "Напишіть лист щодо незаконної вирубки.", hint: "Вкажіть тон та адресата", ex: ["Офіційний лист про вирубку"] },
-            { id: 17, title: "Ідеї", desc: "Мозковий штурм", cat: "Креатив", task: "10 ідей екоосвіти для школярів.", hint: "Попросіть креативні ідеї", ex: ["10 креативних ідей екоосвіти"] },
+            { id: 15, title: "Тести", desc: "Генерація тестів", cat: "Освіта", task: "Створіть тест з 5 питань про охорону лісів.", hint: "Вкажіть тип питань", ex: ["Тест 5 питань про ліси"] },
+            { id: 16, title: "Листи", desc: "Офіційна кореспонденція", cat: "Текст", task: "Напишіть лист щодо порушення лісового законодавства.", hint: "Вкажіть тон та адресата", ex: ["Офіційний лист про порушення"] },
+            { id: 17, title: "Ідеї", desc: "Мозковий штурм", cat: "Креатив", task: "10 ідей екоосвіти для школярів.", hint: "Попросіть креативні ідеї", ex: ["10 ідей екоосвіти"] },
             { id: 18, title: "Обмеження", desc: "Контроль довжини", cat: "Промт", task: "Поясніть фотосинтез у 50 словах.", hint: "Експериментуйте: 50, 100, 200 слів", ex: ["Фотосинтез у 50 словах"] },
-            { id: 19, title: "Заборони", desc: "Чого НЕ робити", cat: "Промт", task: "Стаття про ліси БЕЗ термінів, до 100 слів.", hint: "Комбінуйте: напиши X, але НЕ Y", ex: ["Про ліси без термінів, до 100 слів"] },
-            { id: 20, title: "Фінал", desc: "Всі навички разом", cat: "Комплекс", task: "Як експерт: аналіз проблеми + рішення в JSON + план.", hint: "Роль + структура + обмеження", ex: ["Як експерт проаналізуй і дай план у JSON"] }
+            { id: 19, title: "Заборони", desc: "Чого НЕ робити", cat: "Промт", task: "Стаття про ліси БЕЗ термінів, до 100 слів.", hint: "Комбінуйте: напиши X, але НЕ Y", ex: ["Про ліси без термінів, 100 слів"] },
+            { id: 20, title: "Фінал", desc: "Всі навички разом", cat: "Комплекс", task: "Як експерт: аналіз + рішення у Markdown + план.", hint: "Роль + структура + обмеження", ex: ["Як експерт дай план у Markdown"] }
         ];
 
         let done = new Set(JSON.parse(localStorage.getItem('done') || '[]'));
+        let currentTaskId = null;
+        let lastResponse = '';
 
         document.addEventListener('DOMContentLoaded', () => {
             const k = localStorage.getItem('apiKey');
@@ -369,16 +224,13 @@
         async function testKey(k) {
             const models = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash'];
             let lastError = '';
-
             for (const m of models) {
                 try {
                     showStatus(`Пробую ${m}...`, '#666');
                     const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${k}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ contents: [{ parts: [{ text: 'Hi' }] }] })
                     });
-
                     if (r.ok) {
                         localStorage.setItem('model', m);
                         showStatus('Працює! ' + m, 'var(--green)');
@@ -391,26 +243,17 @@
                         const err = await r.json().catch(() => ({}));
                         lastError = err?.error?.message || `${r.status}`;
                     }
-                } catch (e) {
-                    lastError = e.message;
-                }
+                } catch (e) { lastError = e.message; }
             }
             showStatus('Помилка: ' + lastError, 'var(--red)');
         }
 
-        function showStatus(t, c) {
-            const el = document.getElementById('apiStatus');
-            el.textContent = t;
-            el.style.color = c;
-        }
+        function showStatus(t, c) { const el = document.getElementById('apiStatus'); el.textContent = t; el.style.color = c; }
 
         function renderTasks() {
             document.getElementById('tasksGrid').innerHTML = TASKS.map(t => `
                 <div class="task ${done.has(t.id) ? 'done' : ''}" onclick="openTask(${t.id})">
-                    <span class="task-num">${t.id}</span>
-                    <h3>${t.title}</h3>
-                    <p>${t.desc}</p>
-                    <span class="task-cat">${t.cat}</span>
+                    <span class="task-num">${t.id}</span><h3>${t.title}</h3><p>${t.desc}</p><span class="task-cat">${t.cat}</span>
                 </div>
             `).join('');
         }
@@ -421,21 +264,22 @@
         }
 
         function openTask(id) {
+            currentTaskId = id;
+            lastResponse = '';
             const t = TASKS.find(x => x.id === id);
             document.getElementById('modalTitle').textContent = `${t.id}. ${t.title}`;
 
             let extra = '';
-            if (t.code) extra = '<div class="output-section"><h4>Виконання коду</h4><div class="code-box" id="codeBox"><pre>// Код тут</pre></div><div class="result-box hidden" id="resultBox"><h5>Результат</h5><div id="resultContent"></div></div></div>';
-            if (t.chart) extra = '<div class="chart-box"><canvas id="chartCanvas"></canvas></div>';
-            if (t.search) extra = '<div class="output-section"><h4>Процес аналізу</h4><div id="searchBox"></div></div>';
-            if (t.cot) extra = '<div class="output-section"><h4>Ланцюжок думок</h4><div id="cotBox"></div></div>';
-            if (t.hall) extra = '<div id="hallBox"></div>';
+            if (t.code) extra = `<div class="output-section"><h4>Виконання коду</h4><div class="code-box" id="codeBox"><pre>// Код тут</pre></div><div class="result-box hidden" id="resultBox"><h5>Результат</h5><div id="resultContent"></div></div></div>`;
+            if (t.chart) extra = `<div class="output-section"><h4>Графік <button class="btn btn-sm btn-secondary" onclick="buildChart()">Побудувати</button></h4><div class="chart-box" id="chartBox"><p style="color:var(--gray-400);text-align:center;padding:40px">Надішліть запит для даних</p></div></div>`;
+            if (t.search) extra = `<div class="output-section"><h4>Процес аналізу</h4><div id="searchBox"></div></div>`;
+            if (t.cot) extra = `<div class="output-section"><h4>Ланцюжок думок</h4><div id="cotBox"></div></div>`;
+            if (t.hall) extra = `<div id="hallBox"></div>`;
+            if (t.markdown) extra = `<div class="output-section"><h4>Перегляд <button class="btn btn-sm btn-secondary" onclick="showPreview()">Показати</button> <button class="download-btn" onclick="downloadMd()">Завантажити .md</button></h4><div class="preview-panel hidden" id="previewPanel"><div class="preview-header"><span>Markdown</span></div><div class="preview-body md-content" id="previewBody"></div></div></div>`;
 
             document.getElementById('modalBody').innerHTML = `
                 <div class="info-box"><h4>Завдання</h4><p>${t.task}</p></div>
-                <div class="tip-box"><h4>Підказка</h4><p>${t.hint}</p>
-                    <div class="examples">${t.ex.map(e => `<span class="example" onclick="setInput('${e.replace(/'/g, "\\'")}')">${e}</span>`).join('')}</div>
-                </div>
+                <div class="tip-box"><h4>Підказка</h4><p>${t.hint}</p><div class="examples">${t.ex.map(e => `<span class="example" onclick="setInput('${e.replace(/'/g, "\\'")}')">${e}</span>`).join('')}</div></div>
                 <div class="chat-label">Чат з ШІ</div>
                 <div class="chat">
                     <div class="messages" id="msgs"><div class="msg sys"><div class="msg-content">Введіть запит</div></div></div>
@@ -473,12 +317,13 @@
 
             try {
                 const res = await callAI(msg, t);
+                lastResponse = res;
                 document.getElementById('loading')?.remove();
-                msgs.innerHTML += `<div class="msg ai"><div class="msg-content">${fmt(res)}</div></div>`;
+                const html = renderMd(res);
+                msgs.innerHTML += `<div class="msg ai"><div class="msg-content md-content">${html}</div></div>`;
                 msgs.scrollTop = msgs.scrollHeight;
 
                 if (t.code) runCode(res);
-                if (t.chart) runChart(res);
                 if (t.cot) showCot(res);
                 if (t.hall) showHall();
             } catch (e) {
@@ -489,79 +334,112 @@
 
         async function callAI(prompt, t) {
             let sys = '';
-            if (t.code) sys = 'Напиши ТІЛЬКИ JavaScript код. Код має виводити результат через console.log(). Обовязково додай приклад виклику функції. Оберни код у ```javascript\\n...\\n```';
-            if (t.chart) sys = 'Напиши JavaScript код для Chart.js. Використай: const ctx = document.getElementById("chartCanvas"); new Chart(ctx, {...}). Оберни у ```javascript\\n...\\n```';
-            if (t.cot) sys = 'Відповідай покроково. Нумеруй кожен крок: 1. 2. 3.';
+            if (t.code) sys = 'Напиши ТІЛЬКИ JavaScript код без зовнішніх бібліотек. Виводь через console.log(). Додай приклад. Оберни у ```javascript```';
+            if (t.chart) sys = 'Надай JSON масив: [{year:2019,value:100},...]. Тільки JSON без тексту. Оберни у ```json```';
+            if (t.markdown) sys = 'Відповідай у Markdown. Використовуй таблиці, списки, заголовки.';
+            if (t.cot) sys = 'Відповідай покроково. Нумеруй: 1. 2. 3.';
 
-            const full = sys ? sys + '\n\nЗапит: ' + prompt : prompt;
+            const full = sys ? sys + '\n\n' + prompt : prompt;
             const model = localStorage.getItem('model') || 'gemini-2.5-flash';
             const key = localStorage.getItem('apiKey');
 
             const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: full }] }], generationConfig: { temperature: 0.7, maxOutputTokens: 2048 } })
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: full }] }], generationConfig: { temperature: 0.7, maxOutputTokens: 8192 } })
             });
-
             if (!r.ok) throw new Error('API error');
             const d = await r.json();
             return d.candidates[0].content.parts[0].text;
         }
 
+        function renderMd(text) {
+            if (typeof marked !== 'undefined') return marked.parse(text);
+            return text.replace(/```(\w*)\s*([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+                .replace(/`([^`]+)`/g, '<code>$1</code>')
+                .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+        }
+
         function runCode(res) {
             const m = res.match(/```(?:javascript|js)?\s*([\s\S]*?)```/);
             if (!m) return;
-
             const code = m[1].trim();
             document.getElementById('codeBox').innerHTML = `<pre>${esc(code)}</pre>`;
 
             try {
                 const logs = [];
-                const mockConsole = { log: (...a) => logs.push(a.map(x => typeof x === 'object' ? JSON.stringify(x) : String(x)).join(' ')) };
-                new Function('console', code)(mockConsole);
-
-                if (logs.length) {
-                    document.getElementById('resultContent').innerHTML = `<pre>${esc(logs.join('\n'))}</pre>`;
-                    document.getElementById('resultBox').classList.remove('hidden');
-                }
+                const mc = {
+                    log: (...a) => logs.push(a.map(x => typeof x === 'object' ? JSON.stringify(x,null,2) : String(x)).join(' ')),
+                    error: (...a) => logs.push('❌ ' + a.join(' ')),
+                    warn: (...a) => logs.push('⚠️ ' + a.join(' ')),
+                    info: (...a) => logs.push('ℹ️ ' + a.join(' '))
+                };
+                new Function('console', code)(mc);
+                const rb = document.getElementById('resultBox');
+                document.getElementById('resultContent').innerHTML = `<pre>${esc(logs.length ? logs.join('\n') : 'Виконано (немає виводу)')}</pre>`;
+                rb.classList.remove('hidden', 'error');
+                rb.querySelector('h5').textContent = 'Результат';
             } catch (e) {
-                document.getElementById('resultContent').innerHTML = `<pre style="color:var(--red)">Помилка: ${esc(e.message)}</pre>`;
-                document.getElementById('resultBox').classList.remove('hidden');
+                const rb = document.getElementById('resultBox');
+                document.getElementById('resultContent').innerHTML = `<pre>${esc(e.message)}</pre>`;
+                rb.classList.remove('hidden');
+                rb.classList.add('error');
+                rb.querySelector('h5').textContent = 'Помилка';
             }
         }
 
-        function runChart(res) {
-            const m = res.match(/```(?:javascript|js)?\s*([\s\S]*?)```/);
-            if (!m) return;
-
+        function buildChart() {
+            if (!lastResponse) return alert('Спочатку отримайте дані');
+            const jm = lastResponse.match(/```json\s*([\s\S]*?)```/) || lastResponse.match(/\[[\s\S]*?\]/);
+            if (!jm) return alert('JSON не знайдено');
             try {
-                if (window.activeChart) window.activeChart.destroy();
-                const code = m[1].trim();
-                new Function('Chart', 'document', code)(Chart, document);
-                // Store chart reference
-                const canvas = document.getElementById('chartCanvas');
-                if (canvas && Chart.getChart(canvas)) {
-                    window.activeChart = Chart.getChart(canvas);
-                }
-            } catch (e) {
-                console.error('Chart error:', e);
-            }
+                const data = JSON.parse(jm[1] || jm[0]);
+                if (!Array.isArray(data)) throw new Error('Не масив');
+                const max = Math.max(...data.map(d => d.value));
+                const w = 60;
+                let svg = `<svg viewBox="0 0 ${data.length * (w+10) + 60} 260" style="width:100%;height:240px">`;
+                svg += `<line x1="40" y1="10" x2="40" y2="210" stroke="#e5e7eb"/>`;
+                svg += `<line x1="40" y1="210" x2="${data.length * (w+10) + 50}" y2="210" stroke="#e5e7eb"/>`;
+                data.forEach((d, i) => {
+                    const x = 50 + i * (w + 10);
+                    const h = (d.value / max) * 180;
+                    svg += `<rect x="${x}" y="${210-h}" width="${w}" height="${h}" fill="#6366f1" rx="4"/>`;
+                    svg += `<text x="${x+w/2}" y="230" text-anchor="middle" font-size="11" fill="#4b5563">${d.year}</text>`;
+                    svg += `<text x="${x+w/2}" y="${205-h}" text-anchor="middle" font-size="10" fill="#6b7280">${d.value}</text>`;
+                });
+                svg += `</svg>`;
+                document.getElementById('chartBox').innerHTML = svg;
+            } catch (e) { alert('Помилка: ' + e.message); }
+        }
+
+        function showPreview() {
+            if (!lastResponse) return alert('Немає відповіді');
+            document.getElementById('previewBody').innerHTML = renderMd(lastResponse);
+            document.getElementById('previewPanel').classList.remove('hidden');
+        }
+
+        function downloadMd() {
+            if (!lastResponse) return alert('Немає даних');
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([lastResponse], {type:'text/markdown'}));
+            a.download = 'response.md';
+            a.click();
         }
 
         function showCot(res) {
             const box = document.getElementById('cotBox');
             if (!box) return;
             const steps = res.split(/\n/).filter(l => /^\d+\./.test(l.trim()));
-            box.innerHTML = steps.map((s, i) => `<div class="search-step done"><div class="step-icon">${i + 1}</div><div>${s.replace(/^\d+\.\s*/, '')}</div></div>`).join('');
+            box.innerHTML = steps.map((s, i) => `<div class="search-step done"><div class="step-icon">${i+1}</div><div>${s.replace(/^\d+\.\s*/,'')}</div></div>`).join('');
         }
 
         async function fakeSearch() {
             const box = document.getElementById('searchBox');
             if (!box) return;
-            const steps = ['Аналіз запиту...', 'Пошук джерел...', 'Обробка даних...', 'Формування відповіді...'];
+            const steps = ['Аналіз запиту...', 'Пошук джерел...', 'Обробка...', 'Формування відповіді...'];
             for (let i = 0; i < steps.length; i++) {
                 box.innerHTML += `<div class="search-step" id="ss${i}"><div class="step-icon" style="background:#f59e0b">⏳</div><div>${steps[i]}</div></div>`;
-                await new Promise(r => setTimeout(r, 600));
+                await new Promise(r => setTimeout(r, 500));
                 document.getElementById(`ss${i}`).className = 'search-step done';
                 document.getElementById(`ss${i}`).querySelector('.step-icon').textContent = '✓';
             }
@@ -569,7 +447,7 @@
 
         function showHall() {
             const box = document.getElementById('hallBox');
-            if (box) box.innerHTML = `<div class="warning-box"><h4>⚠️ Можлива галюцинація</h4><p>ШІ може впевнено відповідати про неіснуючі речі. Завжди перевіряйте факти!</p></div>`;
+            if (box) box.innerHTML = `<div class="warning-box"><h4>⚠️ Можлива галюцинація</h4><p>ШІ може вигадувати факти. Перевіряйте з офіційних джерел!</p></div>`;
         }
 
         function complete(id) {
@@ -581,14 +459,6 @@
         }
 
         function esc(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
-
-        function fmt(t) {
-            return t
-                .replace(/```(\w*)\s*([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
-                .replace(/`([^`]+)`/g, '<code>$1</code>')
-                .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-                .replace(/\n/g, '<br>');
-        }
 
         document.getElementById('modal').onclick = e => { if (e.target.id === 'modal') closeModal(); };
         document.onkeydown = e => { if (e.key === 'Escape') closeModal(); };
