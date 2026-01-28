@@ -191,9 +191,9 @@
             { id: 8, title: "Глибокий аналіз", desc: "Комплексний пошук", cat: "Аналіз", task: "Проаналізуйте вплив клімату на ліси Карпат.", hint: "Складні багатоаспектні питання", ex: ["Аналіз впливу клімату на Карпати"], search: true },
             { id: 9, title: "Галюцинації", desc: "Вигадки ШІ", cat: "Критика", task: "Запитайте про вигаданий 'Закон про ліси 2027'.", hint: "ШІ може впевнено вигадувати", ex: ["Розкажи про Закон про ліси 2027"], hall: true },
             { id: 10, title: "Markdown вивід", desc: "Структуровані документи", cat: "Формати", task: "Попросіть таблицю 5 нацпарків у Markdown.", hint: "Вкажіть поля: назва, площа, рік", ex: ["5 нацпарків у Markdown таблиці"], markdown: true },
-            { id: 11, title: "Сумаризація", desc: "Стиснення тексту", cat: "Текст", task: "Вставте текст і попросіть підсумок у 3 реченнях.", hint: "Вкажіть довжину підсумку", ex: ["Підсумуй у 3 реченнях: ..."] },
-            { id: 12, title: "Переклад", desc: "Фаховий переклад", cat: "Текст", task: "Перекладіть текст зберігаючи термінологію FSC.", hint: "Вкажіть галузь", ex: ["Переклади зберігаючи терміни FSC"] },
-            { id: 13, title: "Аналіз документів", desc: "Витяг інформації", cat: "Аналіз", task: "Витягніть ключові дані з договору.", hint: "Структуруйте: дати, суми, сторони", ex: ["Витягни з договору дати, суми"] },
+            { id: 11, title: "Сумаризація", desc: "Стиснення тексту", cat: "Текст", task: "Завантажте текст або вставте його і попросіть підсумок.", hint: "Вкажіть довжину підсумку", ex: ["Підсумуй у 3 реченнях"], file: true },
+            { id: 12, title: "Переклад", desc: "Фаховий переклад", cat: "Текст", task: "Завантажте або вставте текст для перекладу.", hint: "Вкажіть галузь та мову", ex: ["Переклади зберігаючи терміни FSC"], file: true },
+            { id: 13, title: "Аналіз документів", desc: "Витяг інформації", cat: "Аналіз", task: "Завантажте документ і попросіть витягти дані.", hint: "Структуруйте: дати, суми, сторони", ex: ["Витягни дати, суми, сторони"], file: true },
             { id: 14, title: "Порівняння", desc: "Порівняльний аналіз", cat: "Аналіз", task: "Порівняйте природне vs штучне відновлення лісів.", hint: "Попросіть таблицю", ex: ["Порівняй у таблиці..."] },
             { id: 15, title: "Тести", desc: "Генерація тестів", cat: "Освіта", task: "Створіть тест з 5 питань про охорону лісів.", hint: "Вкажіть тип питань", ex: ["Тест 5 питань про ліси"] },
             { id: 16, title: "Листи", desc: "Офіційна кореспонденція", cat: "Текст", task: "Напишіть лист щодо порушення лісового законодавства.", hint: "Вкажіть тон та адресата", ex: ["Офіційний лист про порушення"] },
@@ -206,6 +206,7 @@
         let done = new Set(JSON.parse(localStorage.getItem('done') || '[]'));
         let currentTaskId = null;
         let lastResponse = '';
+        let fileContent = '';
 
         document.addEventListener('DOMContentLoaded', () => {
             const k = localStorage.getItem('apiKey');
@@ -266,6 +267,7 @@
         function openTask(id) {
             currentTaskId = id;
             lastResponse = '';
+            fileContent = '';
             const t = TASKS.find(x => x.id === id);
             document.getElementById('modalTitle').textContent = `${t.id}. ${t.title}`;
 
@@ -277,14 +279,18 @@
             if (t.hall) extra = `<div id="hallBox"></div>`;
             if (t.markdown) extra = `<div class="output-section"><h4>Перегляд <button class="btn btn-sm btn-secondary" onclick="showPreview()">Показати</button> <button class="download-btn" onclick="downloadMd()">Завантажити .md</button></h4><div class="preview-panel hidden" id="previewPanel"><div class="preview-header"><span>Markdown</span></div><div class="preview-body md-content" id="previewBody"></div></div></div>`;
 
+            let fileInput = '';
+            if (t.file) fileInput = `<div class="file-upload" style="margin-bottom:16px"><label style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--gray-50);border:2px dashed var(--gray-200);border-radius:10px;cursor:pointer"><input type="file" id="fileInput" accept=".txt,.md,.doc,.docx,.pdf" onchange="handleFile(this)" style="display:none"><span style="color:var(--gray-600)">📎 Завантажити файл (.txt, .md)</span></label><div id="fileName" style="margin-top:8px;font-size:0.85rem;color:var(--green)"></div></div>`;
+
             document.getElementById('modalBody').innerHTML = `
                 <div class="info-box"><h4>Завдання</h4><p>${t.task}</p></div>
                 <div class="tip-box"><h4>Підказка</h4><p>${t.hint}</p><div class="examples">${t.ex.map(e => `<span class="example" onclick="setInput('${e.replace(/'/g, "\\'")}')">${e}</span>`).join('')}</div></div>
+                ${fileInput}
                 <div class="chat-label">Чат з ШІ</div>
                 <div class="chat">
-                    <div class="messages" id="msgs"><div class="msg sys"><div class="msg-content">Введіть запит</div></div></div>
+                    <div class="messages" id="msgs"><div class="msg sys"><div class="msg-content">${t.file ? 'Завантажте файл або введіть текст' : 'Введіть запит'}</div></div></div>
                     <div class="chat-input">
-                        <textarea id="input" rows="2" placeholder="Ваш запит..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send(${id})}"></textarea>
+                        <textarea id="input" rows="3" placeholder="${t.file ? 'Вставте текст або опишіть що зробити з файлом...' : 'Ваш запит...'}" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send(${id})}"></textarea>
                         <button class="btn btn-primary" onclick="send(${id})">→</button>
                     </div>
                 </div>
@@ -300,15 +306,34 @@
         function closeModal() { document.getElementById('modal').classList.remove('active'); }
         function setInput(t) { document.getElementById('input').value = t; }
 
+        function handleFile(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                fileContent = e.target.result;
+                document.getElementById('fileName').textContent = '✓ ' + file.name + ' завантажено';
+            };
+            reader.readAsText(file);
+        }
+
         async function send(id) {
             const input = document.getElementById('input');
-            const msg = input.value.trim();
-            if (!msg) return;
+            let msg = input.value.trim();
+            if (!msg && !fileContent) return;
 
             const t = TASKS.find(x => x.id === id);
             const msgs = document.getElementById('msgs');
 
-            msgs.innerHTML += `<div class="msg user"><div class="msg-content">${esc(msg)}</div></div>`;
+            // Додаємо вміст файлу до повідомлення якщо є
+            let fullMsg = msg;
+            if (fileContent && t.file) {
+                fullMsg = msg + '\n\n--- Документ ---\n' + fileContent;
+                msgs.innerHTML += `<div class="msg user"><div class="msg-content">${esc(msg)}<br><small style="opacity:0.7">[+ завантажений документ]</small></div></div>`;
+            } else {
+                msgs.innerHTML += `<div class="msg user"><div class="msg-content">${esc(msg)}</div></div>`;
+            }
+
             input.value = '';
             msgs.innerHTML += `<div class="msg ai" id="loading"><div class="msg-content"><div class="dots"><span></span><span></span><span></span></div></div></div>`;
             msgs.scrollTop = msgs.scrollHeight;
@@ -316,7 +341,7 @@
             if (t.search) await fakeSearch();
 
             try {
-                const res = await callAI(msg, t);
+                const res = await callAI(fullMsg, t);
                 lastResponse = res;
                 document.getElementById('loading')?.remove();
                 const html = renderMd(res);
@@ -430,7 +455,7 @@
             const box = document.getElementById('cotBox');
             if (!box) return;
             const steps = res.split(/\n/).filter(l => /^\d+\./.test(l.trim()));
-            box.innerHTML = steps.map((s, i) => `<div class="search-step done"><div class="step-icon">${i+1}</div><div>${s.replace(/^\d+\.\s*/,'')}</div></div>`).join('');
+            box.innerHTML = steps.map((s, i) => `<div class="search-step done"><div class="step-icon">${i+1}</div><div class="md-content">${renderMd(s.replace(/^\d+\.\s*/,''))}</div></div>`).join('');
         }
 
         async function fakeSearch() {
